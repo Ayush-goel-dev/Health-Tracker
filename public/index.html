@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Progress Tracker — Kapiil Guptta</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400;1,9..144,700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<!-- FIX (4): Sync error notification banner -->
+<div id="sync-error-banner" style="
+  display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  background: #AF0E24; color: #fff; font-size: 13px; font-weight: 600;
+  padding: 10px 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" title="Show/hide menu" aria-label="Toggle menu">
+      <span class="sidebar-toggle-icon">☰</span>
+    </button>
+    <!-- WAYDA logo — black mark + red leaf, red "Y" (inline SVG). Clickable → home. -->
+    <svg class="sidebar-logo-img" onclick="goTo('welcome')" role="link" tabindex="0" aria-label="WAYDA — go to home" title="Home" viewBox="0 0 320 48" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="4,44 16,44 30,4 18,4" fill="#0F172A"/>
+      <polygon points="20,44 32,44 46,4 34,4" fill="#0F172A"/>
+      <path d="M55 4 C 67 15 67 33 55 45 C 43 33 43 15 55 4 Z" fill="#C1121F"/>
+      <text y="35" font-family="'Plus Jakarta Sans', sans-serif" font-size="31" font-weight="700" letter-spacing="5">
+        <tspan x="82" fill="#0F172A">WA</tspan><tspan fill="#C1121F">Y</tspan><tspan fill="#0F172A">DA</tspan>
+      </text>
+    </svg>
+    <div class="sidebar-title">Weekly Progress<br>Tracker</div>
+    <div class="sidebar-user" id="sidebar-user">—</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="admin-drawer" id="admin-drawer">
+      <div class="admin-drawer-toggle" id="admin-drawer-toggle" onclick="toggleAdminDrawer()" title="Show/hide admin dashboard access">
+        <span>Admin Access</span>
+        <span class="admin-drawer-arrow">▸</span>
+      </div>
+      <div class="admin-drawer-panel">
+        <div class="nav-item" id="nav-admin" onclick="goTo('admin')" style="margin-bottom:8px;background:var(--orange-light);border-color:var(--orange-mid);color:var(--orange);font-weight:600"><span class="nav-icon">🛡️</span>Admin Dashboard</div>
+      </div>
+    </div>
+    <div class="sidebar-section">Setup</div>
+    <div class="nav-item active" id="nav-welcome" onclick="goTo('welcome')"><span class="nav-icon">🏠</span>Home</div>
+    <div class="nav-item" id="nav-profile" onclick="goTo('profile')"><span class="nav-icon">👤</span>Profile</div>
+    <div class="sidebar-section" style="margin-top:8px">Weekly Check-In</div>
+    <div class="nav-item" id="nav-q1" onclick="gotoIfReady('q1')"><span class="nav-icon">💭</span>1 · Inner State</div>
+    <div class="nav-item" id="nav-q2" onclick="gotoIfReady('q2')"><span class="nav-icon">📊</span>2 · Progress &amp; Wins</div>
+    <div class="sidebar-section" style="margin-top:8px">Dashboard</div>
+    <div class="nav-item" id="nav-progress" onclick="gotoIfReady('progress')"><span class="nav-icon">📈</span>View Progress</div>
+  </div>
+  <div class="sidebar-footer">"Small daily choices.<br>Big life changes." 🌿</div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- WELCOME -->
+<div class="page active" id="page-welcome">
+  <div class="welcome-layout">
+    <div class="welcome-left">
+      <div class="greet-eyebrow" id="greet-eyebrow">Welcome</div>
+      <div class="welcome-title" id="greet-title">Your Progress<br><em>Journey</em></div>
+      <div class="welcome-sub" id="greet-sub">Track your body, mind, and habits each week — and watch the transformation compound over 12 weeks.</div>
+
+      <div class="greet-stats" id="greet-stats" style="display:none">
+        <div class="greet-stat"><div class="gs-val brand" id="gs-week">—</div><div class="gs-lbl">Program week</div></div>
+        <div class="greet-stat"><div class="gs-val green" id="gs-cons">—</div><div class="gs-lbl">Consistency</div></div>
+        <div class="greet-stat"><div class="gs-val" id="gs-checkins">—</div><div class="gs-lbl">Check-ins</div></div>
+      </div>
+
+      <button class="btn btn-primary" id="welcome-start-btn" onclick="goTo('profile')">Get Started →</button>
+      <div class="welcome-choice" id="welcome-return-choice">
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="continueExistingUser()">Continue Journey →</button>
+          <button class="btn btn-ghost" onclick="startNewUser()">Start New User</button>
+        </div>
+      </div>
+      <div class="return-banner" id="ret-banner">
+        <strong id="ret-name" style="display:none"></strong>
+        <span id="ret-progress"></span>
+        <div style="margin-top:8px">
+          <button class="ret-link" onclick="goTo('q1')">Continue check-in</button> ·
+          <button class="ret-link" onclick="goTo('progress')">View dashboard</button>
+        </div>
+      </div>
+      <div class="welcome-author"><span>Your Coach</span>Kapiil Guptta</div>
+      <div class="welcome-note">Your data is private and secure.</div>
+    </div>
+    <div class="welcome-right">
+      <div class="card-label" style="margin-bottom:20px">This week</div>
+      <div class="welcome-steps">
+        <div class="ws-item">
+          <div class="ws-num">1</div>
+          <div class="ws-text"><div class="ws-title">Inner State &amp; Habits</div><div class="ws-desc">Rate awareness, mood &amp; intent, log your daily habits</div></div>
+        </div>
+        <div class="ws-item">
+          <div class="ws-num">2</div>
+          <div class="ws-text"><div class="ws-title">Progress &amp; Wins</div><div class="ws-desc">Track your markers and the real wins from this week</div></div>
+        </div>
+        <div class="ws-item">
+          <div class="ws-num">3</div>
+          <div class="ws-text"><div class="ws-title">Dashboard &amp; Simulator</div><div class="ws-desc">See scores, trends and the cost of inconsistency</div></div>
+        </div>
+      </div>
+      <div class="welcome-quote" id="welcome-quote">Small daily choices compound into big life changes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile">
+  <div style="max-width:640px">
+    <div class="card" style="margin-top:8px">
+      <div class="card-label">Your Profile</div>
+      <div class="form-cols">
+        <div class="field"><label>Full Name</label><input type="text" id="u-name" placeholder="Your name" autocomplete="name"></div>
+        <div class="field"><label>Age</label><input type="number" id="u-age" min="1" max="99" placeholder="e.g. 34" oninput="if(this.value>99)this.value=99"></div>
+      </div>
+      <div class="form-cols">
+        <div class="field"><label>Email</label><input type="email" id="u-email" placeholder="you@email.com"></div>
+        <div class="field"><label>Contact Number</label><input type="tel" id="u-phone" placeholder="9876543210" inputmode="numeric" pattern="\d{10}" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)"></div>
+      </div>
+      <div class="form-cols">
+        <div class="field"><label>Program Duration (weeks)</label><input type="number" id="u-weeks" min="1" max="99" value="12" placeholder="e.g. 12" oninput="if(this.value>99)this.value=99"></div>
+        <div class="field"><label>Check-in Day</label>
+          <select id="u-checkinday">
+            <option value="">Select day</option>
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+            <option>Saturday</option>
+            <option>Sunday</option>
+          </select>
+        </div>
+      </div>
+      <div class="err-msg" id="profile-err">Please enter your name to continue.</div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="saveProfile()">Continue →</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Q1: INNER STATE -->
+<div class="page" id="page-q1">
+  <div class="section-banner" style="background:var(--purple-light);border:1px solid var(--purple-mid)">
+    <div class="sb-num" style="background:var(--purple-mid);color:var(--purple)">1</div>
+    <div><div class="sb-title" style="color:var(--purple)">How Did You Feel This Week?</div><div class="sb-sub" style="color:var(--purple)">Your inner state & daily habits.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Your Goal (for Simulator)</div>
+    <div class="form-cols">
+      <div class="field no-mb"><label>Goal Description</label><input type="text" id="goal-text" placeholder="e.g. Lose 10kg, fix thyroid, more energy…"></div>
+      <div class="field no-mb"><label>Goal Duration (months)</label><input type="number" id="goal-months" min="1" max="60" value="3" placeholder="3"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Overall Feelings (avg for the week)</div>
+    <div class="feelings-grid-3">
+      <div class="feeling-box">
+        <div class="feeling-box-top"><div class="feeling-icon">🧭</div><div><div class="feeling-label">Health Awareness</div><div class="feeling-sub">1 (Low) — 10 (High)</div></div></div>
+        <div class="scale-group" id="scale-energy"></div>
+      </div>
+      <div class="feeling-box">
+        <div class="feeling-box-top"><div class="feeling-icon">😊</div><div><div class="feeling-label">Mood</div><div class="feeling-sub">1 (Low) — 10 (High)</div></div></div>
+        <div class="scale-group" id="scale-mood"></div>
+      </div>
+      <div class="feeling-box">
+        <div class="feeling-box-top"><div class="feeling-icon">🎯</div><div><div class="feeling-label">Intent</div><div class="feeling-sub">1 (Low) — 10 (High)</div></div></div>
+        <div class="scale-group" id="scale-motivation"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-label">Habits This Week</div>
+      <div id="fixed-habits-list">
+        <div class="habit-row"><div class="habit-left"><div class="habit-icon">🧘</div><div><div class="habit-name">Breathing before meals</div><div class="habit-hint">0–21 meals</div></div></div><input type="number" class="habit-input" id="h-breathing" min="0" max="21" placeholder="0–21"></div>
+        <div class="habit-row"><div class="habit-left"><div class="habit-icon">🚶</div><div><div class="habit-name">Walked after meals</div><div class="habit-hint">0–21 meals</div></div></div><input type="number" class="habit-input" id="h-walking" min="0" max="21" placeholder="0–21"></div>
+        <div class="habit-row"><div class="habit-left"><div class="habit-icon">🥩</div><div><div class="habit-name">Protein in most meals</div></div></div><div class="yesno-wrap"><button class="yn-btn yes" id="yn-protein-yes" onclick="setYN('protein','yes')">Yes</button><button class="yn-btn no" id="yn-protein-no" onclick="setYN('protein','no')">No</button></div></div>
+        <div class="habit-row"><div class="habit-left"><div class="habit-icon">📱</div><div><div class="habit-name">Screen-free 1hr before bed</div><div class="habit-hint">0–7 nights</div></div></div><input type="number" class="habit-input" id="h-screentime" min="0" max="7" placeholder="0–7"></div>
+      </div>
+      <div id="custom-habits-list"></div>
+      <button type="button" class="add-item-btn" onclick="addCustomItem('habit')">+ Add a Habit</button>
+    </div>
+    <div class="card">
+      <div class="card-label">Rituals &amp; Recovery</div>
+      <div id="fixed-rituals-list">
+        <div class="habit-row"><div class="habit-left"><div class="habit-icon">🍵</div><div><div class="habit-name">Evening tea (Sukoon/Viram)</div><div class="habit-hint">0–7 nights</div></div></div><input type="number" class="habit-input" id="h-tea" min="0" max="7" placeholder="0–7"></div>
+        <div class="habit-row"><div class="habit-left"><div class="habit-icon">🌙</div><div><div class="habit-name">Night healing ritual</div><div class="habit-hint">tea + magnesium+ (0–7)</div></div></div><input type="number" class="habit-input" id="h-nightritual" min="0" max="7" placeholder="0–7"></div>
+        <div class="habit-row"><div class="habit-left"><div class="habit-icon">💊</div><div><div class="habit-name">Supplements consistently</div><div class="habit-hint">0–7 days</div></div></div><input type="number" class="habit-input" id="h-supplements" min="0" max="7" placeholder="0–7"></div>
+        <div class="habit-row"><div class="habit-left"><div class="habit-icon">😴</div><div><div class="habit-name">Sleep quality (avg)</div><div class="habit-hint">1–10</div></div></div><input type="number" class="habit-input" id="h-sleepquality" min="1" max="10" placeholder="1–10"></div>
+        <div class="habit-row"><div class="habit-left"><div class="habit-icon">😰</div><div><div class="habit-name">Stress level (avg)</div><div class="habit-hint">1–10</div></div></div><input type="number" class="habit-input" id="h-stress" min="1" max="10" placeholder="1–10"></div>
+      </div>
+      <div id="custom-rituals-list"></div>
+      <button type="button" class="add-item-btn" onclick="addCustomItem('ritual')">+ Add a Ritual</button>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-label">Biggest Bottleneck This Week <span style="font-weight:400;text-transform:none;letter-spacing:0">(select all that apply)</span></div>
+      <div class="chips-wrap" id="bottleneck-chips">
+        <div class="chip" data-val="Late Nights" onclick="toggleBottleneck(this)"><span>🌙</span>Late Nights</div>
+        <div class="chip" data-val="Emotional Eating" onclick="toggleBottleneck(this)"><span>🧠</span>Emotional Eating</div>
+        <div class="chip" data-val="Work Stress / Overwhelm" onclick="toggleBottleneck(this)"><span>😤</span>Work Stress</div>
+        <div class="chip" data-val="Lack of Time" onclick="toggleBottleneck(this)"><span>⏰</span>Lack of Time</div>
+        <div class="chip" data-val="Cravings / Junk Food" onclick="toggleBottleneck(this)"><span>🍕</span>Cravings / Junk Food</div>
+        <div class="chip" data-val="Low Energy" onclick="toggleBottleneck(this)"><span>🔋</span>Low Energy</div>
+        <div class="chip" data-val="Inconsistent Routine" onclick="toggleBottleneck(this)"><span>👥</span>Inconsistent Routine</div>
+        <div class="chip" data-val="Travel / Social" onclick="toggleBottleneck(this)"><span>✈️</span>Travel / Social</div>
+        <div class="chip orange" data-val="Other" id="chip-other" onclick="toggleBottleneck(this)"><span>···</span>Other</div>
+      </div>
+    </div>
+    <div class="card" id="other-bottleneck-card" style="display:none">
+      <div class="card-label">Anything else affecting you?</div>
+      <div class="chips-wrap" id="other-chips" style="margin-bottom:12px">
+        <div class="chip" data-val="Sleep Disruption" onclick="toggleOtherChip(this)"><span>🛏️</span>Sleep Disruption</div>
+        <div class="chip" data-val="Family / Personal Matters" onclick="toggleOtherChip(this)"><span>🏠</span>Family / Personal</div>
+        <div class="chip" data-val="Illness / Injury" onclick="toggleOtherChip(this)"><span>🤒</span>Illness / Injury</div>
+        <div class="chip" data-val="Financial Stress" onclick="toggleOtherChip(this)"><span>💸</span>Financial Stress</div>
+        <div class="chip" data-val="Weather / Season" onclick="toggleOtherChip(this)"><span>🌧️</span>Weather / Season</div>
+        <div class="chip" data-val="Hormonal" onclick="toggleOtherChip(this)"><span>⚖️</span>Hormonal</div>
+      </div>
+      <div class="field no-mb"><label>Other (write your own)</label><textarea id="q1-notes" rows="3" placeholder="Write a few words…"></textarea></div>
+    </div>
+  </div>
+
+  <div class="err-msg" id="q1-err"></div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="saveQ1()">Next: Progress &amp; Wins →</button>
+    <button class="btn btn-ghost" onclick="goTo('profile')">← Back</button>
+  </div>
+</div>
+
+<!-- Q2: PROGRESS & WINS -->
+<div class="page" id="page-q2">
+  <div class="section-banner" style="background:var(--green-light);border:1px solid var(--green-mid)">
+    <div class="sb-num" style="background:var(--green-mid);color:var(--green)">2</div>
+    <div><div class="sb-title" style="color:var(--green)">How Did You Progress?</div><div class="sb-sub" style="color:var(--green)">Your measurements, progress markers &amp; life wins.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Upload Measurements</div>
+    <div class="upload-note-box">
+      <div class="upload-note-icon">📐</div>
+      <div class="field no-mb" style="flex:1"><label>Measurement Notes / Upload Reference</label><textarea id="q2-measurements" rows="3" placeholder="e.g. Uploaded photos to WhatsApp, or note weight/waist/etc. here…"></textarea></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:34px;height:34px;border-radius:10px;background:var(--purple-light);border:1.5px solid var(--purple-mid);display:flex;align-items:center;justify-content:center;font-size:16px">📊</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--ink2)">Consistency — Habit → Result Impact</div>
+        <div style="font-size:10px;color:var(--ink4);margin-top:1px">Track your inner state (1–10, fill what applies)</div>
+      </div>
+    </div>
+    <div class="form-cols-4">
+      <div class="field no-mb"><label>Sleep Quality</label><input type="number" class="meas-input" id="p-sleepq" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb"><label>Stress Adaptability</label><input type="number" class="meas-input" id="p-stressadapt" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb"><label>Activeness &amp; Energy</label><input type="number" class="meas-input" id="p-activeness" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb"><label>Digestion / Bloating</label><input type="number" class="meas-input" id="p-digestion" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Brain Fog</label><input type="number" class="meas-input" id="p-brainfog" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Body Pains / Stiffness</label><input type="number" class="meas-input" id="p-pain" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Cravings</label><input type="number" class="meas-input" id="p-cravings" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Movement</label><input type="number" class="meas-input" id="p-movement" min="1" max="10" placeholder="1–10"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Kya Fayde Hue? (Top 3 Wins)</div>
+    <div class="three-col">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="width:36px;height:36px;border-radius:9px;background:var(--orange-light);border:1px solid var(--orange-mid);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🎯</div>
+        <div class="field no-mb" style="flex:1"><label>Biggest Win This Week</label><input type="text" id="win-biggest" placeholder="What was your biggest win?"></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="width:36px;height:36px;border-radius:9px;background:var(--orange-light);border:1px solid var(--orange-mid);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👨‍👩‍👧</div>
+        <div class="field no-mb" style="flex:1"><label>Family / Relationship Win</label><input type="text" id="win-family" placeholder="How did you show up better?"></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="width:36px;height:36px;border-radius:9px;background:var(--orange-light);border:1px solid var(--orange-mid);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💼</div>
+        <div class="field no-mb" style="flex:1"><label>Work / Business Win</label><input type="text" id="win-work" placeholder="What did you achieve at work?"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="err-msg" id="q2-err"></div>
+  <div class="btn-row">
+    <button class="btn btn-primary green" onclick="saveQ2AndGoProgress()">See My Progress Dashboard →</button>
+    <button class="btn btn-ghost" onclick="goTo('q1')">← Back</button>
+  </div>
+</div>
+
+<!-- PROGRESS DASHBOARD -->
+<div class="page" id="page-progress">
+
+  <!-- SLIDE 1: INNER STATE DASHBOARD -->
+  <div class="progress-slide" id="pslide-1">
+
+    <!-- TOOLBAR -->
+    <div class="dash-toolbar">
+      <div class="viewing-week-banner" id="viewing-week-banner" style="display:none">
+        Viewing <strong>Week <span id="vw-num"></span></strong>
+        <button class="ret-link" onclick="viewLatestWeek()">← Back to current week</button>
+      </div>
+      <button class="btn btn-ghost dash-pdf-btn" onclick="downloadDashboardPDF()">⤓&nbsp; Download PDF</button>
+    </div>
+
+    <!-- OVERVIEW STRIP -->
+    <div class="overview-strip" id="overview-strip">
+      <div class="ov-item"><div class="ov-val" id="ov-sessions">—</div><div class="ov-lbl">Total Check-ins</div></div>
+      <div class="ov-item"><div class="ov-val" id="ov-avg">—</div><div class="ov-lbl">Avg Consistency</div></div>
+      <div class="ov-item"><div class="ov-val" id="ov-best">—</div><div class="ov-lbl">Best Week</div></div>
+      <div class="ov-item"><div class="ov-val" id="ov-streak">—</div><div class="ov-lbl">Program Week</div></div>
+    </div>
+    <div class="program-bar-wrap" id="program-bar-wrap" style="display:none">
+      <div class="program-bar-track"><div class="program-bar-fill" id="program-bar-fill" style="width:0%"></div></div>
+      <div class="program-bar-label" id="program-bar-label"></div>
+    </div>
+
+    <!-- INNER STATE DASHBOARD -->
+    <div class="dark-card">
+      <div class="dash-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="dash-badge" style="background:rgba(229,9,20,0.18);color:#f87171;border:2px solid rgba(229,9,20,0.3)">1</div>
+          <div><div class="dash-title">Inner State Dashboard</div><div class="dash-sub">How you feel. How you function.</div></div>
+        </div>
+        <div class="week-pill" id="p1-week">This Week</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:20px">
+        <div class="dark-card-label" style="margin-bottom:10px">Weekly Health Score</div>
+        <div class="score-ring-wrap">
+          <svg width="90" height="90" viewBox="0 0 100 100">
+            <circle class="ring-bg" cx="50" cy="50" r="42"/>
+            <circle class="ring-fill" id="ring-fill-1" cx="50" cy="50" r="42" stroke="#22C55E" stroke-dasharray="264" stroke-dashoffset="264"/>
+            <text class="ring-score-num" x="50" y="52" text-anchor="middle" dominant-baseline="middle" font-family="Fraunces,Georgia,serif" font-size="22" fill="#f7f5f0" id="ring-score-1">—</text>
+            <text x="50" y="66" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(247,245,240,0.35)">/10</text>
+          </svg>
+          <div class="ring-info">
+            <div class="ring-score" id="ring-score-big">—</div>
+            <div class="ring-label" id="ring-label">Health Score</div>
+            <div class="ring-sub" id="ring-message">Complete check-in to see score.</div>
+            <div class="ring-delta" id="ring-delta" style="display:none">—</div>
+          </div>
+        </div>
+        <div class="ring-hinglish" id="ring-hinglish">
+          <b>Health Score kya hota hai?</b> Yeh score teen cheezon se banta hai — Health Awareness, Mood, aur Intent — in teenon ka average. Jitna zyada score, utna behtar aapki weekly health journey.
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-label">Consistency Score</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+          <span style="font-family:var(--font-serif);font-size:40px;font-weight:400;color:var(--green)" id="con-pct">—</span>
+          <span style="font-size:11px;color:var(--ink4);font-family:var(--font-mono)">/ 100 This Week</span>
+        </div>
+        <div class="con-bar-track"><div class="con-bar-fill" id="con-bar" style="width:0%"></div></div>
+        <div class="con-sub" id="con-custom-note"></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div class="card-label" style="margin-bottom:0">Bottleneck Analysis</div>
+          <span style="font-size:10px;color:var(--ink4);font-family:var(--font-mono)">This Week</span>
+        </div>
+        <div id="bottleneck-display"><div class="empty-state">No check-in recorded yet.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="width:34px;height:34px;border-radius:10px;background:var(--purple-light);border:1.5px solid var(--purple-mid);display:flex;align-items:center;justify-content:center;font-size:16px">📈</div>
+        <div>
+          <div class="card-label" style="margin-bottom:0">Consistency — Habit → Result Impact</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:1px">How your behaviour directly shaped your outcomes this week</div>
+        </div>
+      </div>
+      <div id="habit-result-impact" style="margin-top:10px"><div class="empty-state">Complete a check-in to see how your habits affected your results.</div></div>
+    </div>
+
+    <div class="quote-bar">"Small daily choices. Big life changes." 🌿</div>
+    <div class="btn-row"><button class="btn btn-primary" onclick="goTo('q1')" style="font-size:12px">+ New Week Check-In</button></div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- SLIDE 2: PROGRESS TRACKER -->
+  <div class="progress-slide" id="pslide-2">
+    <div class="dark-card">
+      <div class="dash-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="dash-badge" style="background:rgba(34,197,94,0.2);color:#4ade80;border:2px solid rgba(34,197,94,0.3)">2</div>
+          <div><div class="dash-title">Progress &amp; Changes Tracker</div><div class="dash-sub">Track your transformation over time.</div></div>
+        </div>
+        <div class="week-pill" id="p2-week">This Week</div>
+      </div>
+      <div class="dark-card-label" style="margin-bottom:8px">Measurement Notes</div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;font-size:12px;color:rgba(247,245,240,0.7);line-height:1.6" id="dash-meas-note">No measurement notes logged yet.</div>
+    </div>
+
+    <!-- Consistency Chart -->
+    <div class="card">
+      <div class="card-label">Consistency Growth — All Weeks</div>
+      <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="lit-header">
+        <span class="lit-dash"></span>
+        <span class="lit-title">Life Improvements Timeline</span>
+      </div>
+      <div class="fayde-timeline" id="fayde-timeline-all">
+        <div class="empty-state">No wins logged yet. Complete a check-in to see your wins here.</div>
+      </div>
+    </div>
+
+    <div class="quote-bar">"You don't chase results. You build systems." ⭐</div>
+  </div>
+
+  <hr class="section-divider">
+
+  <!-- SLIDE 3: REAL COST OF DELAY + SIMULATOR -->
+  <div class="progress-slide" id="pslide-3">
+
+    <!-- INTENT PROGRESS — dramatic new design -->
+    <div class="dark-card" style="border-color:rgba(229,9,20,0.25)">
+      <div class="dash-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="dash-badge" style="background:rgba(229,9,20,0.18);color:#f87171;border:2px solid rgba(229,9,20,0.3)">⚡</div>
+          <div><div class="dash-title">Real Cost of Delay</div><div class="dash-sub">Based on your current intent, consistency &amp; behaviour trends.</div></div>
+        </div>
+      </div>
+      <div id="intent-progress-statement">
+        <div style="font-family:var(--font-serif);font-size:13px;color:rgba(247,245,240,0.5);text-align:center;padding:24px">Complete your weekly check-in to see your progress statement.</div>
+      </div>
+    </div>
+
+    <!-- SIMULATOR — exact same functioning as reference -->
+    <div class="two-col">
+      <div class="card">
+        <div class="card-label">Simulator — If My Consistency Becomes…</div>
+        <div class="sim-pct" id="sim-pct-display">70%</div>
+        <div class="sim-hint">Drag to explore your trajectory</div>
+        <div class="range-wrap">
+          <div class="range-track"><div class="range-fill" id="range-fill-el" style="width:70%"></div></div>
+          <input type="range" class="sim-slider" id="sim-slider" min="10" max="100" value="70">
+        </div>
+        <div class="sim-results" style="grid-template-columns:1fr">
+          <div class="sim-box"><div class="sim-box-val" id="sim-time">—</div><div class="sim-box-lbl">Months to Goal</div></div>
+        </div>
+        <div class="sim-insight" id="sim-insight">Enter your check-in and goal duration to see the simulation.</div>
+      </div>
+
+      <div class="card" style="border-color:rgba(229,9,20,0.15)">
+        <div class="card-label">What You're Risking Every Week</div>
+        <div style="background:var(--red-light);border:1px solid rgba(229,9,20,0.1);border-radius:var(--r);padding:14px;margin-bottom:12px;font-size:12px;color:var(--ink2);line-height:1.8" id="cost-narrative">
+          Complete your weekly check-in to see a personalized cost analysis.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px" id="cost-breakdown-list"></div>
+      </div>
+    </div>
+
+    <div class="quote-bar">"The cost of delay is always higher than the cost of action."</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="goTo('q1')" style="font-size:12px">Start This Week's Check-In</button>
+      <button class="btn btn-ghost" style="font-size:12px" onclick="clearAllData()">Clear All Data</button>
+    </div>
+  </div>
+</div>
+
+  <div class="page" id="page-admin">
+    <div class="card" style="margin-top:8px">
+      <div class="card-label">Admin Dashboard</div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink2)">Client tracker (admin only)</div>
+          <div style="font-size:12px;color:var(--ink4);margin-top:6px">Use <code>?admin=1</code> in the URL to access this dashboard. Clients do not see this view.</div>
+        </div>
+        <button class="btn btn-primary" onclick="createNewClient()">+ New Client</button>
+      </div>
+      <div style="margin-top:18px;overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Check-ins</th>
+              <th>Latest Entry</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-client-table-body"></tbody>
+        </table>
+      </div>
+      <div class="admin-details" id="admin-client-details"><div class="empty-state">Select a client to view details.</div></div>
+    </div>
+  </div>
+</div>
+<!-- /main -->
+
+<script src="/js/api.js" defer></script>
+<script src="/js/helpers.js" defer></script>
+<script src="/js/storage.js" defer></script>
+<script src="/js/profile.js" defer></script>
+<script src="/js/admin.js" defer></script>
+<script src="/js/checkin.js" defer></script>
+<script src="/js/dashboard.js" defer></script>
+<script src="/js/charts.js" defer></script>
+<script src="/js/app.js" defer></script>
+</body>
+</html>
