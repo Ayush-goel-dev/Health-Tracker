@@ -457,6 +457,34 @@ input[type=range].sim-slider { position: absolute; top: -10px; left: 0; width: 1
 .fayde-week-entry:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
 .fayde-week-entry.viewing { outline: 2px solid var(--brand); outline-offset: 1px; }
 
+/* ── HEALTH-SCORE JOURNEY ROADMAP (v5) ──────────── */
+.roadmap-wrap { overflow-x: auto; padding: 26px 8px 8px; }
+.roadmap-track { display: flex; align-items: flex-end; gap: 0; position: relative; min-width: max-content; }
+.roadmap-track::before { content: ''; position: absolute; bottom: 42px; left: 34px; right: 34px; height: 3px; background: repeating-linear-gradient(90deg, var(--border-hi) 0, var(--border-hi) 7px, transparent 7px, transparent 15px); border-radius: 2px; z-index: 0; }
+.rm-node { display: flex; flex-direction: column; align-items: center; position: relative; width: 84px; z-index: 1; }
+.rm-score-bubble { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-serif); font-size: 18px; color: #fff; box-shadow: var(--shadow); transition: transform .2s; border: 3px solid #fff; }
+.rm-node.current .rm-score-bubble { transform: scale(1.18); box-shadow: 0 6px 20px rgba(193,18,31,0.32); }
+.rm-you-are-here { position: absolute; top: -34px; left: 50%; transform: translateX(-50%); white-space: nowrap; background: var(--brand); color: #fff; font-size: 9px; font-weight: 600; padding: 3px 9px; border-radius: var(--r-pill); }
+.rm-you-are-here::after { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid var(--brand); }
+.rm-week-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink4); margin-top: 12px; font-weight: 600; }
+.rm-delta { font-size: 11px; margin-top: 3px; font-weight: 700; }
+.rm-delta.up { color: var(--green); }
+.rm-delta.down { color: var(--brand); }
+
+/* ── INNER STATE RADAR (v5) ─────────────────────── */
+.radar-layout { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+.radar-main { flex: 1; min-width: 240px; }
+.chart-wrap-radar { position: relative; height: 290px; }
+.radar-legend-box { background: var(--surface2); border-radius: var(--r-sm); padding: 20px; min-width: 210px; max-width: 280px; flex-shrink: 0; }
+.radar-legend-title { font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink4); font-weight: 600; margin-bottom: 12px; }
+.radar-legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink2); margin-bottom: 7px; }
+.radar-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.radar-legend-divider { border-top: 1px solid var(--border); margin: 14px 0; }
+.radar-legend-what { font-size: 12px; color: var(--ink3); line-height: 1.6; }
+.radar-legend-what b { color: var(--ink2); font-weight: 600; }
+.radar-score-summary { margin-top: 14px; padding: 12px 14px; background: var(--brand-light); border-radius: 10px; font-size: 12px; color: var(--brand); line-height: 1.55; font-weight: 500; }
+.radar-score-summary:empty { display: none; }
+
 /* ── PRINT / PDF EXPORT ─────────────────────────── */
 @media print {
   @page { size: A4; margin: 14mm; }

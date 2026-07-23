@@ -192,6 +192,70 @@ function buildSlide1(latest,prev,history) {
     if (notes) bnHtml += `<div style="margin-top:10px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);font-size:12px;color:var(--ink3);font-style:italic">"${esc(notes)}"</div>`;
   }
   document.getElementById('bottleneck-display').innerHTML = bnHtml;
+
+  buildRoadmap(history);
+  buildRadar(latest, prev);
+}
+
+/* ═══════════════════════════════════════════
+   HEALTH-SCORE JOURNEY ROADMAP (ported from v5)
+═══════════════════════════════════════════ */
+let radarChartInst = null;
+
+function buildRoadmap(history) {
+  const wrap = document.getElementById('roadmap-wrap');
+  if (!wrap) return;
+  try {
+    const hs = e => Math.round(((((e.q1?.energy || 0) + (e.q1?.mood || 0) + (e.q1?.motivation || 0)) / 3) || 0) * 10) / 10;
+    const color = sc => sc >= 8 ? '#16A34A' : sc >= 6 ? '#F59E0B' : '#C1121F';
+    const nodes = history.map((e, i) => {
+      const sc = hs(e);
+      const isLast = i === history.length - 1;
+      const prevSc = i > 0 ? hs(history[i - 1]) : null;
+      const delta = prevSc !== null ? (sc - prevSc).toFixed(1) : null;
+      const deltaHtml = delta !== null
+        ? `<div class="rm-delta ${+delta >= 0 ? 'up' : 'down'}">${+delta >= 0 ? '↑ +' : '↓ '}${Math.abs(delta)}</div>` : '';
+      return `<div class="rm-node${isLast ? ' current' : ''}">${isLast ? '<div class="rm-you-are-here">📍 You are here</div>' : ''}<div class="rm-score-bubble" style="background:${color(sc)}">${sc || '?'}</div><div class="rm-week-lbl">Wk ${i + 1}</div>${deltaHtml}</div>`;
+    });
+    nodes.push(`<div class="rm-node" style="opacity:.4"><div class="rm-score-bubble" style="background:var(--bg2);border:2px dashed var(--border-hi);color:var(--ink4)">?</div><div class="rm-week-lbl">Wk ${history.length + 1}</div></div>`);
+    wrap.innerHTML = `<div class="roadmap-track">${nodes.join('')}</div>`;
+  } catch (err) { console.error('roadmap', err); }
+}
+
+/* ═══════════════════════════════════════════
+   INNER STATE RADAR (ported from v5)
+═══════════════════════════════════════════ */
+function buildRadar(latest, prev) {
+  const canvas = document.getElementById('radarChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  try {
+    if (radarChartInst) { try { radarChartInst.destroy(); } catch (e) {} radarChartInst = null; }
+    const q2 = latest.q2 || {}, pq2 = prev?.q2 || {};
+    const defs = [
+      {k: 'sleepq', l: '😴 Sleep'}, {k: 'stressadapt', l: '🧘 Stress'}, {k: 'activeness', l: '⚡ Energy'},
+      {k: 'digestion', l: '🌿 Digestion'}, {k: 'brainfog', l: '🧠 Clarity'}, {k: 'pain', l: '🩹 Low Pain'},
+      {k: 'cravings', l: '🍫 Cravings'}, {k: 'movement', l: '🏃 Movement'},
+    ];
+    const cur = defs.map(d => q2[d.k] || 0);
+    const datasets = [{
+      label: 'This Week', data: cur, borderColor: '#C1121F', backgroundColor: 'rgba(193,18,31,0.14)',
+      borderWidth: 2.5, pointBackgroundColor: '#C1121F', pointRadius: 4, pointHoverRadius: 6,
+    }];
+    if (prev) datasets.push({
+      label: 'Last Week', data: defs.map(d => pq2[d.k] || 0), borderColor: 'rgba(21,163,74,0.6)',
+      backgroundColor: 'rgba(21,163,74,0.05)', borderWidth: 1.5, borderDash: [5, 4], pointBackgroundColor: '#15A34A', pointRadius: 3,
+    });
+    radarChartInst = new Chart(canvas.getContext('2d'), {
+      type: 'radar', data: {labels: defs.map(d => d.l), datasets},
+      options: {responsive: true, maintainAspectRatio: false,
+        plugins: {legend: {display: false}, tooltip: {backgroundColor: '#0F172A', titleColor: '#fff', bodyColor: 'rgba(255,255,255,0.7)', callbacks: {label: c => `${c.dataset.label}: ${c.parsed.r}/10`}}},
+        scales: {r: {min: 0, max: 10, angleLines: {color: 'rgba(15,23,42,0.08)'}, grid: {color: 'rgba(15,23,42,0.08)'},
+          pointLabels: {font: {family: 'Plus Jakarta Sans', size: 11}, color: '#334155'}, ticks: {display: false}}}},
+    });
+    const weak = defs.filter(d => (q2[d.k] || 0) > 0 && (q2[d.k] || 0) < 6).map(d => d.l.split(' ').slice(1).join(' '));
+    const rsEl = document.getElementById('radar-score-summary');
+    if (rsEl) rsEl.textContent = cur.every(v => !v) ? '' : (weak.length ? `Focus areas this week: ${weak.join(', ')}.` : 'All 8 markers are looking healthy this week!');
+  } catch (err) { console.error('radar', err); }
 }
 
 /* ═══════════════════════════════════════════

@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Weekly Progress Tracker — Kapiil Guptta</title>
+<title>WAYDA · Weekly Progress Tracker</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<meta name="theme-color" content="#C1121F">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400;1,9..144,700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="/css/style.css">
@@ -24,8 +27,8 @@
     </button>
     <!-- WAYDA logo — black mark + red leaf, red "Y" (inline SVG). Clickable → home. -->
     <svg class="sidebar-logo-img" onclick="goTo('welcome')" role="link" tabindex="0" aria-label="WAYDA — go to home" title="Home" viewBox="0 0 320 48" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="4,44 16,44 30,4 18,4" fill="#0F172A"/>
-      <polygon points="20,44 32,44 46,4 34,4" fill="#0F172A"/>
+      <polygon points="4,4 16,4 30,44 18,44" fill="#0F172A"/>
+      <polygon points="20,4 32,4 46,44 34,44" fill="#0F172A"/>
       <path d="M55 4 C 67 15 67 33 55 45 C 43 33 43 15 55 4 Z" fill="#C1121F"/>
       <text y="35" font-family="'Plus Jakarta Sans', sans-serif" font-size="31" font-weight="700" letter-spacing="5">
         <tspan x="82" fill="#0F172A">WA</tspan><tspan fill="#C1121F">Y</tspan><tspan fill="#0F172A">DA</tspan>
@@ -375,6 +378,30 @@
           <span style="font-size:10px;color:var(--ink4);font-family:var(--font-mono)">This Week</span>
         </div>
         <div id="bottleneck-display"><div class="empty-state">No check-in recorded yet.</div></div>
+      </div>
+    </div>
+
+    <!-- HEALTH-SCORE JOURNEY (v5) -->
+    <div class="card">
+      <div class="card-label">Your Health-Score Journey — Week by Week</div>
+      <div class="roadmap-wrap" id="roadmap-wrap"><div class="empty-state">Complete a check-in to see your journey.</div></div>
+    </div>
+
+    <!-- INNER STATE RADAR (v5) -->
+    <div class="card">
+      <div class="radar-layout">
+        <div class="radar-main">
+          <div class="card-label">Inner State Radar</div>
+          <div class="chart-wrap-radar"><canvas id="radarChart"></canvas></div>
+        </div>
+        <div class="radar-legend-box">
+          <div class="radar-legend-title">How to read this</div>
+          <div class="radar-legend-item"><span class="radar-dot" style="background:var(--brand)"></span>This week's inner state</div>
+          <div class="radar-legend-item"><span class="radar-dot" style="background:var(--green);opacity:.75"></span>Last week (comparison)</div>
+          <div class="radar-legend-divider"></div>
+          <div class="radar-legend-what"><b>What's measured:</b> 8 markers rated 1–10 in your check-in — Sleep, Stress, Energy, Digestion, Clarity, Pain, Cravings, Movement. <em>Larger shape = better overall state.</em></div>
+          <div class="radar-score-summary" id="radar-score-summary"></div>
+        </div>
       </div>
     </div>
 
