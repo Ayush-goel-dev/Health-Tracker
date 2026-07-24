@@ -501,9 +501,9 @@ input[type=range].sim-slider { position: absolute; top: -10px; left: 0; width: 1
 .hm-cell.empty .hm-name { color: var(--ink4); }
 .hm-score { font-size: 15px; font-weight: 700; color: #fff; margin-top: 4px; }
 .hm-cell.empty .hm-score { color: var(--ink4); }
-.hm-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
-.hm-overlay.open { display: flex; }
-.hm-card-flip { background: var(--surface); border-radius: 20px; padding: 32px; max-width: 440px; width: 100%; box-shadow: var(--shadow-lg); animation: fadeUp .25s ease both; }
+.hm-detail { position: relative; margin-top: 16px; background: var(--surface2); border-radius: var(--r-sm); padding: 22px 24px; animation: fadeUp .2s ease both; }
+.hm-detail-close { position: absolute; top: 14px; right: 14px; width: 28px; height: 28px; border-radius: 8px; border: none; background: var(--surface); color: var(--ink3); cursor: pointer; font-size: 13px; line-height: 1; }
+.hm-detail-close:hover { background: var(--bg2); color: var(--ink); }
 .hm-card-label { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
 .hm-card-title { font-family: var(--font-serif); font-size: 24px; font-weight: 400; margin-bottom: 6px; color: var(--ink); }
 .hm-card-score { font-family: var(--font-serif); font-size: 40px; font-weight: 400; line-height: 1; }

@@ -336,13 +336,13 @@ function openHmCard(label, score, interp) {
   sc.textContent = score + '/10'; sc.style.color = col;
   document.getElementById('hm-card-body').textContent = interp;
   document.getElementById('hm-card-badge-wrap').innerHTML = `<span class="hm-card-badge" style="background:${badge.bg};color:${col}">${badge.t}</span>`;
-  document.getElementById('hm-overlay').classList.add('open');
+  const d = document.getElementById('hm-detail');
+  if (d) { d.style.display = 'block'; d.scrollIntoView({behavior: 'smooth', block: 'nearest'}); }
 }
 
-function closeHmCard(e) {
-  if (!e || e.target === document.getElementById('hm-overlay')) {
-    document.getElementById('hm-overlay').classList.remove('open');
-  }
+function closeHmCard() {
+  const d = document.getElementById('hm-detail');
+  if (d) d.style.display = 'none';
 }
 
 /* ═══════════════════════════════════════════

@@ -436,15 +436,14 @@
       <div class="card-label">Habit &amp; State Heat Map</div>
       <div style="font-size:12px;color:var(--ink4);margin-bottom:14px">Tap any cell to see what it means and what to do about it.</div>
       <div class="heatmap-grid" id="heatmap-grid"><div class="empty-state" style="grid-column:1/-1">Complete a check-in to see your heat map.</div></div>
-    </div>
-    <div class="hm-overlay" id="hm-overlay" onclick="closeHmCard(event)">
-      <div class="hm-card-flip" onclick="event.stopPropagation()">
+      <!-- Inline detail panel — expands right here, no modal -->
+      <div class="hm-detail" id="hm-detail" style="display:none">
+        <button class="hm-detail-close" onclick="closeHmCard()" aria-label="Close">✕</button>
         <div class="hm-card-label" id="hm-card-label"></div>
         <div class="hm-card-title" id="hm-card-title"></div>
         <div class="hm-card-score" id="hm-card-score"></div>
         <div class="hm-card-body" id="hm-card-body"></div>
         <div id="hm-card-badge-wrap"></div>
-        <div style="margin-top:20px"><button class="btn btn-ghost" style="height:40px" onclick="closeHmCard()">← Back to Dashboard</button></div>
       </div>
     </div>
 
