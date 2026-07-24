@@ -259,6 +259,21 @@
     </div>
   </div>
 
+  <!-- BODY MEASUREMENTS INPUT (v5) -->
+  <div class="card">
+    <div class="card-label">Body Measurements <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink4)">(optional — fill what you track)</span></div>
+    <div class="form-cols-4">
+      <div class="field no-mb"><label>Weight (kg)</label><input type="number" step="0.1" id="m-weight" placeholder="e.g. 72"></div>
+      <div class="field no-mb"><label>Waist (cm)</label><input type="number" step="0.1" id="m-waist" placeholder="e.g. 84"></div>
+      <div class="field no-mb"><label>Chest (cm)</label><input type="number" step="0.1" id="m-chest" placeholder="e.g. 98"></div>
+      <div class="field no-mb"><label>Hips (cm)</label><input type="number" step="0.1" id="m-hips" placeholder="e.g. 96"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Arms (cm)</label><input type="number" step="0.1" id="m-arms" placeholder="e.g. 34"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Thighs (cm)</label><input type="number" step="0.1" id="m-thighs" placeholder="e.g. 56"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Neck (cm)</label><input type="number" step="0.1" id="m-neck" placeholder="e.g. 38"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Body Fat (%)</label><input type="number" step="0.1" id="m-bodyfat" placeholder="e.g. 22"></div>
+    </div>
+  </div>
+
   <div class="card">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
       <div style="width:34px;height:34px;border-radius:10px;background:var(--purple-light);border:1.5px solid var(--purple-mid);display:flex;align-items:center;justify-content:center;font-size:16px">📊</div>
@@ -340,24 +355,35 @@
         </div>
         <div class="week-pill" id="p1-week">This Week</div>
       </div>
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:20px">
-        <div class="dark-card-label" style="margin-bottom:10px">Weekly Health Score</div>
-        <div class="score-ring-wrap">
-          <svg width="90" height="90" viewBox="0 0 100 100">
-            <circle class="ring-bg" cx="50" cy="50" r="42"/>
-            <circle class="ring-fill" id="ring-fill-1" cx="50" cy="50" r="42" stroke="#22C55E" stroke-dasharray="264" stroke-dashoffset="264"/>
-            <text class="ring-score-num" x="50" y="52" text-anchor="middle" dominant-baseline="middle" font-family="Fraunces,Georgia,serif" font-size="22" fill="#f7f5f0" id="ring-score-1">—</text>
-            <text x="50" y="66" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(247,245,240,0.35)">/10</text>
-          </svg>
+      <div style="background:rgba(255,255,255,0.04);border-radius:16px;padding:22px 24px">
+        <div class="dark-card-label" style="margin-bottom:14px">Weekly Scores</div>
+        <div class="dual-rings">
+          <div class="dual-ring">
+            <svg width="94" height="94" viewBox="0 0 100 100">
+              <circle class="ring-bg" cx="50" cy="50" r="42"/>
+              <circle class="ring-fill" id="ring-fill-1" cx="50" cy="50" r="42" stroke="#22C55E" stroke-dasharray="264" stroke-dashoffset="264"/>
+              <text class="ring-score-num" x="50" y="52" text-anchor="middle" dominant-baseline="middle" font-family="Fraunces,Georgia,serif" font-size="24" fill="#fff" id="ring-score-1">—</text>
+              <text x="50" y="68" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(255,255,255,0.4)">/10</text>
+            </svg>
+            <div class="dual-ring-lbl">Health Score</div>
+          </div>
+          <div class="dual-ring">
+            <svg width="94" height="94" viewBox="0 0 100 100">
+              <circle class="ring-bg" cx="50" cy="50" r="42"/>
+              <circle class="ring-fill" id="ring-fill-cons" cx="50" cy="50" r="42" stroke="#16A34A" stroke-dasharray="264" stroke-dashoffset="264"/>
+              <text class="ring-score-num" x="50" y="52" text-anchor="middle" dominant-baseline="middle" font-family="Fraunces,Georgia,serif" font-size="22" fill="#fff" id="ring-cons-1">—</text>
+              <text x="50" y="68" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(255,255,255,0.4)">%</text>
+            </svg>
+            <div class="dual-ring-lbl">Consistency</div>
+          </div>
           <div class="ring-info">
-            <div class="ring-score" id="ring-score-big">—</div>
             <div class="ring-label" id="ring-label">Health Score</div>
             <div class="ring-sub" id="ring-message">Complete check-in to see score.</div>
             <div class="ring-delta" id="ring-delta" style="display:none">—</div>
           </div>
         </div>
         <div class="ring-hinglish" id="ring-hinglish">
-          <b>Health Score kya hota hai?</b> Yeh score teen cheezon se banta hai — Health Awareness, Mood, aur Intent — in teenon ka average. Jitna zyada score, utna behtar aapki weekly health journey.
+          <b>Health Score kya hota hai?</b> Yeh score teen cheezon se banta hai — Health Awareness, Mood, aur Intent — in teenon ka average.
         </div>
       </div>
     </div>
@@ -405,6 +431,23 @@
       </div>
     </div>
 
+    <!-- HABIT & STATE HEAT MAP (v5) -->
+    <div class="card">
+      <div class="card-label">Habit &amp; State Heat Map</div>
+      <div style="font-size:12px;color:var(--ink4);margin-bottom:14px">Tap any cell to see what it means and what to do about it.</div>
+      <div class="heatmap-grid" id="heatmap-grid"><div class="empty-state" style="grid-column:1/-1">Complete a check-in to see your heat map.</div></div>
+    </div>
+    <div class="hm-overlay" id="hm-overlay" onclick="closeHmCard(event)">
+      <div class="hm-card-flip" onclick="event.stopPropagation()">
+        <div class="hm-card-label" id="hm-card-label"></div>
+        <div class="hm-card-title" id="hm-card-title"></div>
+        <div class="hm-card-score" id="hm-card-score"></div>
+        <div class="hm-card-body" id="hm-card-body"></div>
+        <div id="hm-card-badge-wrap"></div>
+        <div style="margin-top:20px"><button class="btn btn-ghost" style="height:40px" onclick="closeHmCard()">← Back to Dashboard</button></div>
+      </div>
+    </div>
+
     <div class="card">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
         <div style="width:34px;height:34px;border-radius:10px;background:var(--purple-light);border:1.5px solid var(--purple-mid);display:flex;align-items:center;justify-content:center;font-size:16px">📈</div>
@@ -414,6 +457,38 @@
         </div>
       </div>
       <div id="habit-result-impact" style="margin-top:10px"><div class="empty-state">Complete a check-in to see how your habits affected your results.</div></div>
+    </div>
+
+    <!-- BODY MEASUREMENTS (v5) -->
+    <div class="card" id="meas-analysis-card">
+      <div class="card-label">Body Measurements — Progress</div>
+      <div class="meas-layout">
+        <div class="meas-table-wrap">
+          <table class="meas-table" id="meas-table">
+            <thead><tr><th>Metric</th><th>Start</th><th>Latest</th><th>Change</th></tr></thead>
+            <tbody id="meas-tbody"></tbody>
+          </table>
+          <div class="empty-state meas-empty-state" id="meas-empty" style="display:none">No measurements entered yet. Add weight, waist, etc. in the Progress &amp; Wins section of your next check-in.</div>
+        </div>
+        <div class="body-silhouette">
+          <svg width="120" height="220" viewBox="0 0 120 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="22" r="18" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
+            <rect x="54" y="38" width="12" height="10" rx="4" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
+            <path d="M33 52 Q24 72 26 105 L94 105 Q96 72 87 52 Q75 48 60 48 Q45 48 33 52Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
+            <path d="M33 55 Q16 75 18 108 L28 108 Q31 84 40 62Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
+            <path d="M87 55 Q104 75 102 108 L92 108 Q89 84 80 62Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
+            <path d="M26 104 Q20 122 24 138 L96 138 Q100 122 94 104Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
+            <path d="M26 136 Q20 164 24 198 L46 198 Q46 167 42 136Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
+            <path d="M94 136 Q100 164 96 198 L74 198 Q74 167 78 136Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
+            <circle id="bdot-neck" cx="60" cy="43" r="4.5" fill="var(--brand)" stroke="#fff" stroke-width="1.5" opacity="0"/>
+            <circle id="bdot-chest" cx="80" cy="70" r="4.5" fill="var(--brand)" stroke="#fff" stroke-width="1.5" opacity="0"/>
+            <circle id="bdot-waist" cx="100" cy="88" r="4.5" fill="var(--brand)" stroke="#fff" stroke-width="1.5" opacity="0"/>
+            <circle id="bdot-hips" cx="100" cy="118" r="4.5" fill="var(--brand)" stroke="#fff" stroke-width="1.5" opacity="0"/>
+            <circle id="bdot-thighs" cx="88" cy="158" r="4.5" fill="var(--brand)" stroke="#fff" stroke-width="1.5" opacity="0"/>
+          </svg>
+          <div class="body-legend" id="body-legend"></div>
+        </div>
+      </div>
     </div>
 
     <div class="quote-bar">"Small daily choices. Big life changes." 🌿</div>
@@ -442,6 +517,11 @@
       <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
     </div>
 
+    <!-- THIS WEEK'S WINS CELEBRATION (v5) -->
+    <div class="card" id="wins-celebration-card" style="display:none">
+      <div id="wins-celebration"></div>
+    </div>
+
     <div class="card">
       <div class="lit-header">
         <span class="lit-dash"></span>
@@ -453,6 +533,7 @@
     </div>
 
     <div class="quote-bar">"You don't chase results. You build systems." ⭐</div>
+    <canvas class="confetti-canvas" id="confetti-canvas" style="display:none"></canvas>
   </div>
 
   <hr class="section-divider">
@@ -483,8 +564,11 @@
           <div class="range-track"><div class="range-fill" id="range-fill-el" style="width:70%"></div></div>
           <input type="range" class="sim-slider" id="sim-slider" min="10" max="100" value="70">
         </div>
-        <div class="sim-results" style="grid-template-columns:1fr">
-          <div class="sim-box"><div class="sim-box-val" id="sim-time">—</div><div class="sim-box-lbl">Months to Goal</div></div>
+        <div class="sim-grid">
+          <div class="sim-box"><div class="sim-box-val" id="sim-cur-pct">—</div><div class="sim-box-lbl">Current Consistency</div></div>
+          <div class="sim-box" style="background:var(--brand-light)"><div class="sim-box-val" style="color:var(--brand)" id="sim-pct-box">70%</div><div class="sim-box-lbl">Simulated Consistency</div></div>
+          <div class="sim-box"><div class="sim-box-val" id="sim-cur-months">—</div><div class="sim-box-lbl">Months at Current %</div></div>
+          <div class="sim-box" style="background:var(--brand-light)"><div class="sim-box-val" style="color:var(--brand)" id="sim-time">—</div><div class="sim-box-lbl">Months at Simulated %</div></div>
         </div>
         <div class="sim-insight" id="sim-insight">Enter your check-in and goal duration to see the simulation.</div>
       </div>
@@ -496,6 +580,12 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:6px" id="cost-breakdown-list"></div>
       </div>
+    </div>
+
+    <!-- HABITS TO FOCUS ON (v5) -->
+    <div class="card">
+      <div class="card-label">Habits &amp; Rituals to Focus On</div>
+      <div id="habits-to-improve"><div class="empty-state">Complete your check-in to see personalised suggestions.</div></div>
     </div>
 
     <div class="quote-bar">"The cost of delay is always higher than the cost of action."</div>

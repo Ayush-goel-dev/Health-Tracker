@@ -278,6 +278,10 @@ body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); 
 
 /* ── SCORE RING ─────────────────────────────────── */
 .score-ring-wrap { display: flex; gap: 22px; align-items: center; margin-bottom: 18px; }
+.dual-rings { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+.dual-ring { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.dual-ring-lbl { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,0.5); font-weight: 600; }
+.ring-info { flex: 1; min-width: 150px; }
 .ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 8; }
 .ring-fill { fill: none; stroke-width: 8; stroke-linecap: round; transform-origin: center; transform: rotate(-90deg); transition: stroke-dashoffset .9s cubic-bezier(.4,0,.2,1); }
 .ring-score { font-family: var(--font-serif); font-size: 32px; font-weight: 400; line-height: 1; color: #fff; }
@@ -484,6 +488,65 @@ input[type=range].sim-slider { position: absolute; top: -10px; left: 0; width: 1
 .radar-legend-what b { color: var(--ink2); font-weight: 600; }
 .radar-score-summary { margin-top: 14px; padding: 12px 14px; background: var(--brand-light); border-radius: 10px; font-size: 12px; color: var(--brand); line-height: 1.55; font-weight: 500; }
 .radar-score-summary:empty { display: none; }
+
+/* ── HABIT & STATE HEAT MAP (v5) ────────────────── */
+.heatmap-grid { display: grid; gap: 10px; }
+.hm-cell { border-radius: var(--r-sm); padding: 16px 12px; text-align: center; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.hm-cell:hover:not(.empty) { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.hm-cell.red { background: #C1121F; }
+.hm-cell.orange { background: #F59E0B; }
+.hm-cell.green { background: #16A34A; }
+.hm-cell.empty { background: var(--surface2); opacity: .6; cursor: default; }
+.hm-name { font-size: 12px; font-weight: 600; color: #fff; line-height: 1.3; }
+.hm-cell.empty .hm-name { color: var(--ink4); }
+.hm-score { font-size: 15px; font-weight: 700; color: #fff; margin-top: 4px; }
+.hm-cell.empty .hm-score { color: var(--ink4); }
+.hm-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+.hm-overlay.open { display: flex; }
+.hm-card-flip { background: var(--surface); border-radius: 20px; padding: 32px; max-width: 440px; width: 100%; box-shadow: var(--shadow-lg); animation: fadeUp .25s ease both; }
+.hm-card-label { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+.hm-card-title { font-family: var(--font-serif); font-size: 24px; font-weight: 400; margin-bottom: 6px; color: var(--ink); }
+.hm-card-score { font-family: var(--font-serif); font-size: 40px; font-weight: 400; line-height: 1; }
+.hm-card-body { font-size: 14px; color: var(--ink3); line-height: 1.7; margin-top: 14px; }
+.hm-card-badge { display: inline-flex; gap: 6px; align-items: center; padding: 6px 14px; border-radius: var(--r-pill); font-size: 12px; font-weight: 700; margin-top: 14px; }
+
+/* ── SIMULATOR GRID (v5) ────────────────────────── */
+.sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+
+/* ── HABITS TO FOCUS ON (v5) ────────────────────── */
+.habit-improve-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; background: var(--surface2); border-radius: var(--r-sm); margin-bottom: 10px; }
+.habit-improve-item:last-child { margin-bottom: 0; }
+.habit-improve-icon { font-size: 20px; flex-shrink: 0; }
+.habit-improve-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+.habit-improve-desc { font-size: 13px; color: var(--ink3); margin-top: 3px; line-height: 1.6; }
+
+/* ── WINS CELEBRATION (v5) ──────────────────────── */
+.lit-proud { font-family: var(--font-serif); font-size: 30px; font-weight: 400; color: var(--ink); text-align: center; }
+.lit-proud span { color: var(--brand); }
+.lit-wins-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 20px; }
+.lit-win-card { background: var(--surface2); border-radius: var(--r); padding: 22px 18px; text-align: center; }
+.lit-win-card.featured { background: var(--brand-light); }
+.lit-win-icon { font-size: 28px; margin-bottom: 10px; }
+.lit-win-type { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink4); font-weight: 600; margin-bottom: 8px; }
+.lit-win-text { font-size: 14px; color: var(--ink2); line-height: 1.5; font-weight: 500; }
+.confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+@media (max-width: 700px) { .lit-wins-grid { grid-template-columns: 1fr; } .sim-grid { grid-template-columns: 1fr; } }
+
+/* ── BODY MEASUREMENTS (v5) ─────────────────────── */
+.meas-layout { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: start; }
+.meas-table-wrap { overflow-x: auto; }
+.meas-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.meas-table th { font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink4); font-weight: 600; padding: 9px 10px; border-bottom: 1.5px solid var(--border); text-align: left; }
+.meas-table td { padding: 11px 10px; border-bottom: 1px solid var(--border); color: var(--ink2); }
+.meas-table tr:last-child td { border-bottom: none; }
+.meas-table td.meas-delta-pos { color: var(--green); font-weight: 700; }
+.meas-table td.meas-delta-neg { color: var(--brand); font-weight: 700; }
+.meas-table td.meas-delta-neu { color: var(--ink4); }
+.body-silhouette { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.body-legend { display: flex; flex-direction: column; gap: 6px; }
+.body-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--ink3); }
+.body-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+@media (max-width: 700px) { .meas-layout { grid-template-columns: 1fr; } }
 
 /* ── PRINT / PDF EXPORT ─────────────────────────── */
 @media print {

@@ -45,6 +45,9 @@ function buildProgress() {
   try { buildSlide2(latest,prev,history); } catch(e) { console.error('buildSlide2 failed', e); }
   try { buildSlide3(latest); }             catch(e) { console.error('buildSlide3 failed', e); }
   updateViewingBanner(history);
+  // Celebrate the current week's wins with a one-off confetti burst on open.
+  const w = latest?.q3;
+  if (w && (w.winBiggest || w.winFamily || w.winWork)) { try { runConfetti(); } catch(e) {} }
 }
 
 // Re-point the Inner State + Cost-of-Delay dashboards at a past week's check-in.
@@ -108,7 +111,14 @@ function buildSlide1(latest,prev,history) {
   document.getElementById('ring-fill-1').style.strokeDashoffset = circ-(rs/10)*circ;
   document.getElementById('ring-fill-1').setAttribute('stroke', rs>=8?'#22C55E':rs>=6?'#F59E0B':'#F87171');
   document.getElementById('ring-score-1').textContent = rs||'—';
-  document.getElementById('ring-score-big').textContent = (rs||'—')+'/10';
+  // Consistency ring (dual-ring header)
+  const rfc = document.getElementById('ring-fill-cons');
+  if (rfc) {
+    rfc.style.strokeDashoffset = circ-(cons/100)*circ;
+    rfc.setAttribute('stroke', cons>=75?'#22C55E':cons>=50?'#F59E0B':'#F87171');
+    const rc1 = document.getElementById('ring-cons-1');
+    if (rc1) rc1.textContent = cons || '—';
+  }
   const msgs = rs>=8?['Great Progress! 🎉','Your body is healing. Consistency is improving.']:
     rs>=6?['Good Progress 👍','Solid week. Push a little harder.']:
     rs>=4?['Getting There 🌱','Foundation building. Small improvements add up.']:
@@ -195,6 +205,68 @@ function buildSlide1(latest,prev,history) {
 
   buildRoadmap(history);
   buildRadar(latest, prev);
+  buildHeatmap(latest);
+  buildMeasurements(latest, history);
+}
+
+/* ═══════════════════════════════════════════
+   BODY MEASUREMENTS (ported from v5)
+═══════════════════════════════════════════ */
+function buildMeasurements(latest, history) {
+  const card = document.getElementById('meas-analysis-card');
+  if (!card) return;
+  const defs = [
+    {key: 'weight', label: '⚖️ Weight', unit: 'kg', dotId: 'bdot-waist', goodDown: true},
+    {key: 'waist', label: '📏 Waist', unit: 'cm', dotId: 'bdot-waist', goodDown: true},
+    {key: 'chest', label: '💪 Chest', unit: 'cm', dotId: 'bdot-chest', goodDown: false},
+    {key: 'hips', label: '🔻 Hips', unit: 'cm', dotId: 'bdot-hips', goodDown: true},
+    {key: 'arms', label: '💪 Arms', unit: 'cm', dotId: null, goodDown: false},
+    {key: 'thighs', label: '🦵 Thighs', unit: 'cm', dotId: 'bdot-thighs', goodDown: true},
+    {key: 'neck', label: '🔗 Neck', unit: 'cm', dotId: 'bdot-neck', goodDown: true},
+    {key: 'bodyfat', label: '💧 Body Fat', unit: '%', dotId: null, goodDown: true},
+  ];
+  const meas = e => (e && e.q2 && e.q2.measurements) || {};
+  const curM = meas(latest);
+  const firstEntry = history.find(e => Object.keys(meas(e)).length) || history[0] || {};
+  const firstM = meas(firstEntry);
+  const filled = defs.filter(m => curM[m.key] != null);
+
+  const tbody = document.getElementById('meas-tbody');
+  const table = document.getElementById('meas-table');
+  const empty = document.getElementById('meas-empty');
+  ['bdot-neck', 'bdot-chest', 'bdot-waist', 'bdot-hips', 'bdot-thighs'].forEach(id => {
+    const d = document.getElementById(id); if (d) d.style.opacity = '0';
+  });
+  const legEl = document.getElementById('body-legend');
+
+  if (!filled.length) {
+    if (table) table.style.display = 'none';
+    if (empty) empty.style.display = 'block';
+    if (legEl) legEl.innerHTML = '';
+    return;
+  }
+  if (table) table.style.display = '';
+  if (empty) empty.style.display = 'none';
+
+  tbody.innerHTML = filled.map(m => {
+    const startV = firstM[m.key], curV = curM[m.key];
+    let deltaCell = '<td class="meas-delta-neu">—</td>';
+    if (startV != null && curV != null && history.length > 1 && startV !== curV) {
+      const diff = (curV - startV).toFixed(1);
+      const good = m.goodDown ? +diff <= 0 : +diff >= 0;
+      deltaCell = `<td class="${good ? 'meas-delta-pos' : 'meas-delta-neg'}">${+diff > 0 ? '+' : ''}${diff} ${m.unit}</td>`;
+    }
+    return `<tr><td style="font-weight:600">${m.label}</td><td>${startV != null ? startV + ' ' + m.unit : '—'}</td><td>${curV} ${m.unit}</td>${deltaCell}</tr>`;
+  }).join('');
+
+  const legendItems = [];
+  filled.forEach(m => {
+    if (m.dotId) {
+      const d = document.getElementById(m.dotId); if (d) d.style.opacity = '1';
+      legendItems.push(`<div class="body-legend-item"><span class="body-legend-dot" style="background:var(--brand)"></span>${m.label.replace(/[^\w\s]/g, '').trim()}</div>`);
+    }
+  });
+  if (legEl) legEl.innerHTML = legendItems.join('');
 }
 
 /* ═══════════════════════════════════════════
@@ -220,6 +292,57 @@ function buildRoadmap(history) {
     nodes.push(`<div class="rm-node" style="opacity:.4"><div class="rm-score-bubble" style="background:var(--bg2);border:2px dashed var(--border-hi);color:var(--ink4)">?</div><div class="rm-week-lbl">Wk ${history.length + 1}</div></div>`);
     wrap.innerHTML = `<div class="roadmap-track">${nodes.join('')}</div>`;
   } catch (err) { console.error('roadmap', err); }
+}
+
+/* ═══════════════════════════════════════════
+   HABIT & STATE HEAT MAP (ported from v5)
+═══════════════════════════════════════════ */
+const HM_DEFS = [
+  {key: 'sleepq', label: '😴 Sleep Quality', interp: v => `Sleep quality of ${v}/10. ${v >= 8 ? 'Excellent — your body is repairing and consolidating memory effectively.' : v >= 5 ? 'Moderate — there may be disruptions affecting deep sleep. Consider your night ritual consistency.' : 'Low — poor sleep affects every other marker, including energy, cortisol and fat metabolism.'}`},
+  {key: 'stressadapt', label: '🧘 Stress Adaptability', interp: v => `Stress adaptability: ${v}/10. ${v >= 8 ? 'High resilience — you are managing stress effectively this week.' : v >= 5 ? 'Moderate — some stress is not being processed well. Breathing before meals helps reset the nervous system.' : 'Low — chronic unprocessed stress raises cortisol and stalls fat loss and recovery.'}`},
+  {key: 'activeness', label: '⚡ Activeness & Energy', interp: v => `Energy & activeness: ${v}/10. ${v >= 8 ? 'High energy — your habits are supporting optimal cellular function.' : v >= 5 ? 'Moderate — supplement consistency and post-meal movement can boost output.' : 'Low — check sleep, supplements and movement. Even a 10-min walk after meals shifts this.'}`},
+  {key: 'digestion', label: '🌿 Digestion / Bloating', interp: v => `Digestion: ${v}/10. ${v >= 8 ? 'Good digestive function — your eating habits and rituals are supporting gut health.' : v >= 5 ? 'Moderate — try breathing before meals to activate the parasympathetic state before eating.' : 'Poor — can indicate high stress, poor food choices, or insufficient movement after meals.'}`},
+  {key: 'brainfog', label: '🧠 Brain Fog', interp: v => `Brain fog: ${v}/10. ${v >= 8 ? 'Sharp and clear — low inflammation and good sleep are supporting cognition.' : v >= 5 ? 'Moderate — hydration, sleep quality and blood sugar stability all affect clarity.' : 'High fog — often links to poor sleep, high cortisol, or blood sugar crashes. Prioritise sleep and protein.'}`},
+  {key: 'pain', label: '🩹 Body Pains / Stiffness', interp: v => `Body pain/stiffness: ${v}/10. ${v >= 8 ? 'Low pain — your movement and recovery habits keep inflammation in check.' : v >= 5 ? 'Moderate — consider gentle stretching or feet massage as part of your night ritual.' : 'High — may indicate insufficient recovery, high cortisol, or inflammatory food patterns.'}`},
+  {key: 'cravings', label: '🍫 Cravings', interp: v => `Cravings: ${v}/10. ${v >= 8 ? 'Low cravings — protein consistency and blood sugar stability are working well.' : v >= 5 ? 'Moderate — front-loading protein at breakfast reduces afternoon cravings.' : 'High — a signal of blood sugar instability, poor sleep, or stress. Protein and post-meal walks help.'}`},
+  {key: 'movement', label: '🏃 Movement', interp: v => `Movement: ${v}/10. ${v >= 8 ? 'Excellent — consistent activity supports fat metabolism and insulin sensitivity.' : v >= 5 ? 'Moderate — aim to increase daily movement, especially post-meal walks.' : 'Low — reducing insulin sensitivity and energy. Even 10 minutes after each meal makes a difference.'}`},
+];
+
+function buildHeatmap(latest) {
+  const grid = document.getElementById('heatmap-grid');
+  if (!grid) return;
+  const q2 = latest.q2 || {};
+  const filled = HM_DEFS.filter(h => q2[h.key] != null);
+  if (!filled.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1">Complete the inner-state section in your check-in to see the heat map.</div>';
+    return;
+  }
+  const cols = Math.min(4, filled.length);
+  grid.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+  grid.innerHTML = filled.map(h => {
+    const v = q2[h.key];
+    const cls = v >= 8 ? 'green' : v >= 5 ? 'orange' : 'red';
+    return `<div class="hm-cell ${cls}" onclick="openHmCard('${escAttr(h.label)}',${v},'${escAttr(h.interp(v))}')"><div class="hm-name">${h.label}</div><div class="hm-score">${v}/10</div></div>`;
+  }).join('');
+}
+
+function openHmCard(label, score, interp) {
+  const col = score >= 8 ? '#16A34A' : score >= 5 ? '#F59E0B' : '#C1121F';
+  const badge = score >= 8 ? {t: 'Good', bg: 'rgba(22,163,74,0.12)'} : score >= 5 ? {t: 'Monitor', bg: 'rgba(245,158,11,0.14)'} : {t: 'Needs Attention', bg: 'rgba(193,18,31,0.10)'};
+  const lbl = document.getElementById('hm-card-label');
+  lbl.textContent = 'Health Area'; lbl.style.color = col;
+  document.getElementById('hm-card-title').textContent = label;
+  const sc = document.getElementById('hm-card-score');
+  sc.textContent = score + '/10'; sc.style.color = col;
+  document.getElementById('hm-card-body').textContent = interp;
+  document.getElementById('hm-card-badge-wrap').innerHTML = `<span class="hm-card-badge" style="background:${badge.bg};color:${col}">${badge.t}</span>`;
+  document.getElementById('hm-overlay').classList.add('open');
+}
+
+function closeHmCard(e) {
+  if (!e || e.target === document.getElementById('hm-overlay')) {
+    document.getElementById('hm-overlay').classList.remove('open');
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -343,7 +466,57 @@ function buildSlide3(latest) {
   if(q1.supplements<4) reasons.push({label:'Missed supplements',days:'+1 day'});
   document.getElementById('cost-breakdown-list').innerHTML=reasons.map(r=>`<div class="cost-item"><div style="font-size:12px;color:var(--ink2)">• ${r.label}</div><div class="cost-item-days">${r.days}</div></div>`).join('');
 
+  buildHabitsToImprove(latest);
   updateSim();
+}
+
+/* ═══════════════════════════════════════════
+   HABITS TO FOCUS ON (ported from v5)
+═══════════════════════════════════════════ */
+function buildHabitsToImprove(latest) {
+  const wrap = document.getElementById('habits-to-improve');
+  if (!wrap) return;
+  const q1 = latest.q1 || {};
+  const sugs = [];
+  if ((q1.nightritual || 0) < 4) sugs.push({icon: '🌙', title: 'Night Ritual Consistency', desc: 'Your night healing ritual was low this week. Anchor it to an existing habit — e.g. start it right after you brush your teeth.'});
+  if ((q1.walking || 0) < 10) sugs.push({icon: '🚶', title: 'Walking After Meals', desc: 'Post-meal walking manages blood sugar, aids digestion and boosts energy. Aim for at least 10 minutes after each meal.'});
+  if ((q1.supplements || 0) < 4) sugs.push({icon: '💊', title: 'Supplement Consistency', desc: 'Supplements were taken fewer than 4 days — missing days creates nutrient gaps. Keep them visible, next to your toothbrush or meals.'});
+  if ((q1.breathing || 0) < 10) sugs.push({icon: '🧘', title: 'Breathing Before Meals', desc: 'Breathing before meals activates the parasympathetic state, improving digestion. Even 3 deep breaths before eating helps.'});
+  if (!sugs.length) sugs.push({icon: '⭐', title: 'Excellent Habit Consistency', desc: 'You are doing well across all tracked habits this week! Keep it up and focus on deepening the quality of each habit.'});
+  wrap.innerHTML = sugs.slice(0, 4).map(s =>
+    `<div class="habit-improve-item"><div class="habit-improve-icon">${s.icon}</div><div class="habit-improve-text"><div class="habit-improve-title">${s.title}</div><div class="habit-improve-desc">${s.desc}</div></div></div>`
+  ).join('');
+}
+
+/* ═══════════════════════════════════════════
+   CONFETTI (ported from v5)
+═══════════════════════════════════════════ */
+function runConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  if (!canvas) return;
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colors = ['#C1121F', '#16A34A', '#F59E0B', '#0F172A', '#22C55E', '#E5484D'];
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width, y: -10,
+    vx: (Math.random() - .5) * 4, vy: Math.random() * 3 + 2,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    size: Math.random() * 8 + 4, rot: Math.random() * 360, vrot: (Math.random() - .5) * 8,
+  }));
+  let frame = 0;
+  (function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+      ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.rot += p.vrot;
+    });
+    if (++frame < 180) requestAnimationFrame(draw);
+    else { ctx.clearRect(0, 0, canvas.width, canvas.height); canvas.style.display = 'none'; }
+  })();
 }
 
 async function clearAllData(){

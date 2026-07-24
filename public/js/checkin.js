@@ -179,6 +179,13 @@ async function saveQ2AndGoProgress() {
     return el && el.value !== '' ? +el.value : null;
   }
 
+  // Body measurements (all optional) — nested inside q2, so no schema change.
+  const measurements = {};
+  ['weight', 'waist', 'chest', 'hips', 'arms', 'thighs', 'neck', 'bodyfat'].forEach(k => {
+    const v = gv('m-' + k);
+    if (v != null) measurements[k] = v;
+  });
+
   currentEntry.q2 = {
     measurementsNote: document.getElementById('q2-measurements').value.trim(),
     sleepq: gv('p-sleepq'),
@@ -189,6 +196,7 @@ async function saveQ2AndGoProgress() {
     pain: gv('p-pain'),
     cravings: gv('p-cravings'),
     movement: gv('p-movement'),
+    measurements,
   };
 
   currentEntry.q3 = {

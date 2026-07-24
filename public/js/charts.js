@@ -15,6 +15,8 @@ function buildSlide2(latest,prev,history) {
   const mn = document.getElementById('dash-meas-note');
   if(mn) mn.textContent = q2.measurementsNote || 'No measurement notes logged this week.';
 
+  buildWinsCelebration(latest);
+
   // Life Improvements Timeline
   const timelineEl = document.getElementById('fayde-timeline-all');
   if (!history.length) {
@@ -56,22 +58,52 @@ function buildSlide2(latest,prev,history) {
 }
 
 /* ═══════════════════════════════════════════
-   SIMULATOR — exact functioning from reference
+   THIS WEEK'S WINS CELEBRATION (ported from v5)
+═══════════════════════════════════════════ */
+function buildWinsCelebration(latest) {
+  const card = document.getElementById('wins-celebration-card');
+  const wrap = document.getElementById('wins-celebration');
+  if (!card || !wrap) return;
+  const q3 = latest?.q3 || {};
+  if (!(q3.winBiggest || q3.winFamily || q3.winWork)) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  wrap.innerHTML = `
+    <div style="text-align:center;padding:8px 0 4px">
+      <div style="font-size:34px;margin-bottom:6px">🎉</div>
+      <div class="lit-proud">We are <span>proud of you!</span></div>
+      <div style="font-size:14px;color:var(--ink3);margin-top:6px">Here's what you achieved this week</div>
+    </div>
+    <div class="lit-wins-grid">
+      ${q3.winBiggest ? `<div class="lit-win-card featured"><div class="lit-win-icon">🏆</div><div class="lit-win-type">Biggest Win</div><div class="lit-win-text">${esc(q3.winBiggest)}</div></div>` : ''}
+      ${q3.winFamily ? `<div class="lit-win-card"><div class="lit-win-icon">👨‍👩‍👧</div><div class="lit-win-type">Family / Personal</div><div class="lit-win-text">${esc(q3.winFamily)}</div></div>` : ''}
+      ${q3.winWork ? `<div class="lit-win-card"><div class="lit-win-icon">💼</div><div class="lit-win-type">Work / Business</div><div class="lit-win-text">${esc(q3.winWork)}</div></div>` : ''}
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   SIMULATOR — current % vs simulated % (v5 grid)
 ═══════════════════════════════════════════ */
 function updateSim() {
-  const sv=+document.getElementById('sim-slider').value;
-  document.getElementById('sim-pct-display').textContent=sv+'%';
-  document.getElementById('range-fill-el').style.width=sv+'%';
-  const history=getHistory();
-  const latest=history.length?history[history.length-1]:null;
-  const gm=latest?.q1?.goalMonths||3;
-  const simTime=sv>0?gm/(sv/100):null;
-  document.getElementById('sim-time').textContent=simTime?simTime.toFixed(1)+' mo':'∞';
-  const insEl=document.getElementById('sim-insight');
-  if(simTime){
-    if(sv>=90) insEl.textContent=`🔥 At ${sv}% consistency, you hit your goal in ${simTime.toFixed(1)} months — ${Math.abs((simTime-gm).toFixed(1))} months ${simTime<gm?'ahead of':'behind'} schedule.`;
-    else if(sv>=70) insEl.textContent=`💪 At ${sv}%, you reach your goal in ${simTime.toFixed(1)} months. Good trajectory — push harder for faster results.`;
-    else if(sv>=50) insEl.textContent=`⚠️ At ${sv}%, your goal takes ${simTime.toFixed(1)} months — ${(simTime-gm).toFixed(1)} months longer than planned.`;
-    else insEl.textContent=`🚨 At ${sv}%, your goal could take ${simTime.toFixed(1)} months — ${(simTime-gm).toFixed(1)} months behind. Small daily improvements matter enormously.`;
+  const sv = +document.getElementById('sim-slider').value;
+  document.getElementById('sim-pct-display').textContent = sv + '%';
+  document.getElementById('range-fill-el').style.width = sv + '%';
+  const box = document.getElementById('sim-pct-box');
+  if (box) box.textContent = sv + '%';
+  const history = getHistory();
+  const latest = history.length ? history[history.length - 1] : null;
+  const gm = latest?.q1?.goalMonths || 3;
+  const curCons = latest?.consistency || 0;
+  const curTime = curCons > 0 ? gm / (curCons / 100) : null;
+  const simTime = sv > 0 ? gm / (sv / 100) : null;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('sim-cur-pct', curCons ? curCons + '%' : '—');
+  set('sim-cur-months', curTime ? curTime.toFixed(1) + ' mo' : '—');
+  set('sim-time', simTime ? simTime.toFixed(1) + ' mo' : '∞');
+  const insEl = document.getElementById('sim-insight');
+  if (insEl && simTime) {
+    if (sv >= 90) insEl.textContent = `🔥 At ${sv}% consistency, you hit your goal in ${simTime.toFixed(1)} months — ${Math.abs((simTime - gm).toFixed(1))} months ${simTime < gm ? 'ahead of' : 'behind'} schedule.`;
+    else if (sv >= 70) insEl.textContent = `💪 At ${sv}%, you reach your goal in ${simTime.toFixed(1)} months. Good trajectory — push harder for faster results.`;
+    else if (sv >= 50) insEl.textContent = `⚠️ At ${sv}%, your goal takes ${simTime.toFixed(1)} months — ${(simTime - gm).toFixed(1)} months longer than planned.`;
+    else insEl.textContent = `🚨 At ${sv}%, your goal could take ${simTime.toFixed(1)} months. Small daily improvements matter enormously.`;
   }
 }
