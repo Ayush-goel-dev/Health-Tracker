@@ -134,10 +134,14 @@ function buildSlide1(latest,prev,history) {
     de.textContent=(diff>=0?'↑ +':'↓ ')+diff+' from last week';
   }
   // ── CONSISTENCY SCORE ───────────────────────────────
-  document.getElementById('con-pct').textContent=cons;
-  document.getElementById('con-bar').style.width=cons+'%';
+  // (The standalone number card was removed — consistency now shows as the
+  // hero ring plus the Consistency Growth graph. Guard in case markup is absent.)
+  const conPct = document.getElementById('con-pct');
+  if (conPct) conPct.textContent = cons;
+  const conBar = document.getElementById('con-bar');
+  if (conBar) conBar.style.width = cons + '%';
   const customNote = document.getElementById('con-custom-note');
-  customNote.textContent = (latest.filledCustoms&&latest.filledCustoms.length)
+  if (customNote) customNote.textContent = (latest.filledCustoms&&latest.filledCustoms.length)
     ? `Includes ${latest.filledCustoms.length} custom habit/ritual${latest.filledCustoms.length>1?'s':''}: ${latest.filledCustoms.map(c=>c.name).join(', ')}.`
     : '';
 
@@ -295,18 +299,19 @@ function buildBodyFigure(startM, curM) {
   const fig = document.getElementById('body-figure');
   if (!fig) return;
 
-  // Derive body half-widths (px) from measurements, with sensible fallbacks so
-  // a partially-filled week still renders a plausible figure. Widths are built
-  // from a baseline half-width plus the deviation from a reference size,
-  // amplified so a few cm of real change reads clearly on the figure.
+  // Derive body half-widths (px) directly proportional to each measurement, with
+  // sensible fallbacks. Proportional (not deviation-from-a-baseline) so ANY two
+  // weeks render at clearly different widths — realistic adult sizes land
+  // mid-range, and even out-of-range test values stay distinct instead of both
+  // collapsing onto a clamp floor.
   const shape = (m) => {
     const waist = num(m.waist) ?? (num(m.weight) != null ? num(m.weight) * 1.02 : 80);
     const chest = num(m.chest) ?? waist + 12;
     const hips = num(m.hips) ?? waist + 10;
     return {
-      chestHalf: clamp(21 + (chest - 96) * 0.5, 12, 46),
-      waistHalf: clamp(18 + (waist - 80) * 0.5, 10, 44),
-      hipHalf: clamp(21 + (hips - 96) * 0.5, 12, 46),
+      chestHalf: clamp(chest * 0.32, 8, 46),
+      waistHalf: clamp(waist * 0.32, 7, 44),
+      hipHalf: clamp(hips * 0.32, 8, 46),
     };
   };
 

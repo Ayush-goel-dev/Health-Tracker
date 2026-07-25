@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#C1121F">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400;1,9..144,700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -95,22 +96,38 @@
       <div class="welcome-note">Your data is private and secure.</div>
     </div>
     <div class="welcome-right">
-      <div class="card-label" style="margin-bottom:20px">This week</div>
-      <div class="welcome-steps">
-        <div class="ws-item">
-          <div class="ws-num">1</div>
-          <div class="ws-text"><div class="ws-title">Inner State &amp; Habits</div><div class="ws-desc">Rate awareness, mood &amp; intent, log your daily habits</div></div>
+      <!-- Weekly commitment quote card -->
+      <div class="wq-quote-card">
+        <div class="wq-mark">"</div>
+        <div class="wq-text">What gets measured,<br>gets manifested.</div>
+        <div class="wq-attr">— Your weekly commitment</div>
+      </div>
+      <!-- Visual journey flow -->
+      <div class="wq-journey">
+        <div class="wq-step">
+          <div class="wq-step-dot" style="background:#5B4FCF;box-shadow:0 0 0 6px rgba(91,79,207,0.15)">🧠</div>
+          <div class="wq-step-line"></div>
+          <div class="wq-step-body">
+            <div class="wq-step-title">How are you feeling?</div>
+            <div class="wq-step-desc">Rate your mood, energy &amp; awareness. Log your weekly habits.</div>
+          </div>
         </div>
-        <div class="ws-item">
-          <div class="ws-num">2</div>
-          <div class="ws-text"><div class="ws-title">Progress &amp; Wins</div><div class="ws-desc">Track your markers and the real wins from this week</div></div>
+        <div class="wq-step">
+          <div class="wq-step-dot" style="background:var(--green);box-shadow:0 0 0 6px var(--green-light)">📏</div>
+          <div class="wq-step-line"></div>
+          <div class="wq-step-body">
+            <div class="wq-step-title">How did your body change?</div>
+            <div class="wq-step-desc">Upload measurements and log your real wins this week.</div>
+          </div>
         </div>
-        <div class="ws-item">
-          <div class="ws-num">3</div>
-          <div class="ws-text"><div class="ws-title">Dashboard &amp; Simulator</div><div class="ws-desc">See scores, trends and the cost of inconsistency</div></div>
+        <div class="wq-step">
+          <div class="wq-step-dot" style="background:#C99A2E;box-shadow:0 0 0 6px rgba(201,154,46,0.15)">📊</div>
+          <div class="wq-step-body">
+            <div class="wq-step-title">See your full picture</div>
+            <div class="wq-step-desc">Your progress report — scores, patterns, roadmap &amp; insights.</div>
+          </div>
         </div>
       </div>
-      <div class="welcome-quote" id="welcome-quote">Small daily choices compound into big life changes.</div>
     </div>
   </div>
 </div>
@@ -248,7 +265,10 @@
   <div class="card">
     <div class="card-label">Body Measurements <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink4)">(optional — fill what you track)</span></div>
     <div class="meas-form-import">
-      <button type="button" class="btn btn-ghost" id="meas-form-btn" onclick="importMeasurementForm()" style="height:38px;padding:0 16px;font-size:13px">⤵ Import from Google Form</button>
+      <button type="button" class="btn btn-ghost" onclick="downloadMeasurementTemplate()" style="height:38px;padding:0 16px;font-size:13px">⤓&nbsp; Download form</button>
+      <label class="btn btn-ghost" style="height:38px;padding:0 16px;font-size:13px;cursor:pointer;margin-bottom:0">⤒&nbsp; Upload filled form
+        <input type="file" id="meas-upload-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="uploadMeasurementFile(event)">
+      </label>
       <span class="meas-form-status" id="meas-form-status"></span>
     </div>
     <div class="form-cols-4">
@@ -377,25 +397,6 @@
       </div>
     </div>
 
-    <div class="two-col">
-      <div class="card">
-        <div class="card-label">Consistency Score</div>
-        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
-          <span style="font-family:var(--font-serif);font-size:40px;font-weight:400;color:var(--green)" id="con-pct">—</span>
-          <span style="font-size:11px;color:var(--ink4);font-family:var(--font-mono)">/ 100 This Week</span>
-        </div>
-        <div class="con-bar-track"><div class="con-bar-fill" id="con-bar" style="width:0%"></div></div>
-        <div class="con-sub" id="con-custom-note"></div>
-      </div>
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-          <div class="card-label" style="margin-bottom:0">Bottleneck Analysis</div>
-          <span style="font-size:10px;color:var(--ink4);font-family:var(--font-mono)">This Week</span>
-        </div>
-        <div id="bottleneck-display"><div class="empty-state">No check-in recorded yet.</div></div>
-      </div>
-    </div>
-
     <!-- HEALTH-SCORE JOURNEY (v5) -->
     <div class="card">
       <div class="card-label">Your Health-Score Journey — Week by Week</div>
@@ -463,6 +464,15 @@
           <div class="body-legend" id="body-legend"></div>
         </div>
       </div>
+    </div>
+
+    <!-- BOTTLENECK ANALYSIS (full-width, last) -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div class="card-label" style="margin-bottom:0">Bottleneck Analysis</div>
+        <span style="font-size:10px;color:var(--ink4);font-family:var(--font-mono)">This Week</span>
+      </div>
+      <div id="bottleneck-display"><div class="empty-state">No check-in recorded yet.</div></div>
     </div>
 
     <div class="quote-bar">"Small daily choices. Big life changes." 🌿</div>

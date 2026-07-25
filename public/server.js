@@ -151,25 +151,6 @@ app.delete('/api/submissions/:clientId', wrap(async (req, res) => {
   res.json({success: true, deleted});
 }));
 
-// Pull the latest Google Form measurement submission matching a client's phone.
-app.get('/api/clients/:id/measurement-form', wrap(async (req, res) => {
-  const client = await db.getClient(req.params.id);
-  if (!client) return res.status(404).json({error: 'Client not found'});
-  if (!client.phone) {
-    return res.status(400).json({
-      error: 'This client has no phone number saved, so form responses can\'t be matched. Add their mobile number in the profile first.',
-    });
-  }
-  try {
-    res.json(await db.getLatestMeasurementForm(client.phone));
-  } catch (err) {
-    if (err.code === 'NO_FORM_TAB' || err.code === 'NO_PHONE_COLUMN') {
-      return res.status(400).json({error: err.message});
-    }
-    throw err;
-  }
-}));
-
 app.get('/api/clients/:id/preferences', wrap(async (req, res) => {
   res.json({customDefs: await db.getPreferences(req.params.id)});
 }));

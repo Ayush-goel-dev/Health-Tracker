@@ -1,44 +1,83 @@
 /* ═══════════════════════════════════════════
-   IMPORT MEASUREMENTS FROM GOOGLE FORM
-   Pulls the latest form response matching this client's phone and fills the
-   Body Measurements inputs. Backend matches by phone against a form-responses
-   tab in the same spreadsheet.
+   MEASUREMENTS — DOWNLOAD / UPLOAD EXCEL FORM
+   Download a blank Excel template, fill it (in Excel / Sheets), then upload it
+   back to auto-fill the Body Measurements inputs. Fully client-side (SheetJS),
+   no server or Google account needed.
 ═══════════════════════════════════════════ */
-async function importMeasurementForm() {
+const MEAS_FIELDS = [
+  {key: 'weight',  label: 'Weight (kg)'},
+  {key: 'waist',   label: 'Waist (cm)'},
+  {key: 'chest',   label: 'Chest (cm)'},
+  {key: 'hips',    label: 'Hips (cm)'},
+  {key: 'arms',    label: 'Arms (cm)'},
+  {key: 'thighs',  label: 'Thighs (cm)'},
+  {key: 'neck',    label: 'Neck (cm)'},
+  {key: 'bodyfat', label: 'Body Fat (%)'},
+];
+
+function setMeasStatus(msg, kind) {
   const status = document.getElementById('meas-form-status');
-  const btn = document.getElementById('meas-form-btn');
-  const setStatus = (msg, kind) => {
-    if (status) { status.textContent = msg; status.className = 'meas-form-status' + (kind ? ' ' + kind : ''); }
-  };
+  if (status) { status.textContent = msg; status.className = 'meas-form-status' + (kind ? ' ' + kind : ''); }
+}
 
-  const clientId = getCurrentClientId();
-  if (!clientId || clientId === DEFAULT_CLIENT_ID) {
-    return setStatus('Save the client profile first, then import.', 'err');
+// Build and download a blank two-column Excel template (Measurement | Value).
+function downloadMeasurementTemplate() {
+  if (typeof XLSX === 'undefined') {
+    return setMeasStatus('Excel library not loaded — check your connection and refresh.', 'err');
   }
+  const clientName = (getUser() && getUser().name) ? getUser().name : '';
+  const rows = [
+    ['Measurement', 'Value'],
+    ...MEAS_FIELDS.map(f => [f.label, '']),
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch: 18}, {wch: 14}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Measurements');
+  const safe = clientName ? clientName.replace(/[^\w-]+/g, '_') + '-' : '';
+  XLSX.writeFile(wb, `${safe}measurements-form.xlsx`);
+  setMeasStatus('Template downloaded. Fill the Value column, then upload it back.', 'ok');
+}
 
-  setStatus('Fetching latest form response…', '');
-  if (btn) btn.disabled = true;
-  try {
-    const res = await api.getMeasurementForm(clientId);
-    if (!res.found) {
-      return setStatus("No Google Form response found for this client's phone number yet.", 'err');
+// Parse an uploaded Excel/CSV form and fill the measurement inputs.
+function uploadMeasurementFile(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  if (typeof XLSX === 'undefined') {
+    return setMeasStatus('Excel library not loaded — check your connection and refresh.', 'err');
+  }
+  setMeasStatus('Reading file…', '');
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const wb = XLSX.read(e.target.result, {type: 'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header: 1, blankrows: false});
+      // Match each row's first cell (label) to a field, read the value from any
+      // later cell in that row. Tolerates extra columns / header variations.
+      let n = 0;
+      rows.forEach(row => {
+        if (!row || !row.length) return;
+        const label = String(row[0] || '').toLowerCase();
+        const field = MEAS_FIELDS.find(f => label.includes(f.key) || label.includes(f.label.split(' ')[0].toLowerCase()));
+        if (!field) return;
+        const val = row.slice(1).map(c => parseFloat(c)).find(v => Number.isFinite(v));
+        if (val != null && Number.isFinite(val)) {
+          const el = document.getElementById('m-' + field.key);
+          if (el) { el.value = val; n++; }
+        }
+      });
+      if (n) setMeasStatus(`Imported ${n} measurement${n > 1 ? 's' : ''} from the file. Review, then save the week.`, 'ok');
+      else setMeasStatus('No matching measurement values found in that file. Use the downloaded template.', 'err');
+    } catch (err) {
+      console.error(err);
+      setMeasStatus('Could not read that file. Please upload the downloaded Excel template.', 'err');
+    } finally {
+      event.target.value = ''; // allow re-uploading the same file
     }
-    const keys = ['weight', 'waist', 'chest', 'hips', 'arms', 'thighs', 'neck', 'bodyfat'];
-    let n = 0;
-    keys.forEach(k => {
-      const v = res.measurements[k];
-      const el = document.getElementById('m-' + k);
-      if (el && v != null) { el.value = v; n++; }
-    });
-    const when = res.submittedAt ? ' (submitted ' + res.submittedAt + ')' : '';
-    if (n) setStatus(`Imported ${n} measurement${n > 1 ? 's' : ''} from the form${when}. Review, then save the week.`, 'ok');
-    else setStatus('Form response found, but it had no measurement values.', 'err');
-  } catch (error) {
-    console.error(error);
-    setStatus(error.message || 'Could not import from the Google Form.', 'err');
-  } finally {
-    if (btn) btn.disabled = false;
-  }
+  };
+  reader.onerror = () => setMeasStatus('Could not read that file.', 'err');
+  reader.readAsArrayBuffer(file);
 }
 
 /* ═══════════════════════════════════════════

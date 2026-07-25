@@ -42,7 +42,6 @@ const api = {
     body: JSON.stringify(submission),
   }),
   clearSubmissions: id => apiRequest(`/api/submissions/${encodeURIComponent(id)}`, {method: 'DELETE'}),
-  getMeasurementForm: id => apiRequest(`/api/clients/${encodeURIComponent(id)}/measurement-form`),
   getPreferences: id => apiRequest(`/api/clients/${encodeURIComponent(id)}/preferences`),
   updatePreferences: (id, customDefs) => apiRequest(`/api/clients/${encodeURIComponent(id)}/preferences`, {
     method: 'PUT',
