@@ -12,8 +12,6 @@ function buildSlide2(latest,prev,history) {
     return;
   }
   const q2=latest.q2||{}; const pq2=prev?.q2||{};
-  const mn = document.getElementById('dash-meas-note');
-  if(mn) mn.textContent = q2.measurementsNote || 'No measurement notes logged this week.';
 
   buildWinsCelebration(latest);
 

@@ -1,4 +1,47 @@
 /* ═══════════════════════════════════════════
+   IMPORT MEASUREMENTS FROM GOOGLE FORM
+   Pulls the latest form response matching this client's phone and fills the
+   Body Measurements inputs. Backend matches by phone against a form-responses
+   tab in the same spreadsheet.
+═══════════════════════════════════════════ */
+async function importMeasurementForm() {
+  const status = document.getElementById('meas-form-status');
+  const btn = document.getElementById('meas-form-btn');
+  const setStatus = (msg, kind) => {
+    if (status) { status.textContent = msg; status.className = 'meas-form-status' + (kind ? ' ' + kind : ''); }
+  };
+
+  const clientId = getCurrentClientId();
+  if (!clientId || clientId === DEFAULT_CLIENT_ID) {
+    return setStatus('Save the client profile first, then import.', 'err');
+  }
+
+  setStatus('Fetching latest form response…', '');
+  if (btn) btn.disabled = true;
+  try {
+    const res = await api.getMeasurementForm(clientId);
+    if (!res.found) {
+      return setStatus("No Google Form response found for this client's phone number yet.", 'err');
+    }
+    const keys = ['weight', 'waist', 'chest', 'hips', 'arms', 'thighs', 'neck', 'bodyfat'];
+    let n = 0;
+    keys.forEach(k => {
+      const v = res.measurements[k];
+      const el = document.getElementById('m-' + k);
+      if (el && v != null) { el.value = v; n++; }
+    });
+    const when = res.submittedAt ? ' (submitted ' + res.submittedAt + ')' : '';
+    if (n) setStatus(`Imported ${n} measurement${n > 1 ? 's' : ''} from the form${when}. Review, then save the week.`, 'ok');
+    else setStatus('Form response found, but it had no measurement values.', 'err');
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || 'Could not import from the Google Form.', 'err');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+/* ═══════════════════════════════════════════
    CUSTOM HABITS / RITUALS
 ═══════════════════════════════════════════ */
 async function addCustomItem(type) {
@@ -150,9 +193,6 @@ function saveQ1() {
 async function saveQ2AndGoProgress() {
   // ── Required: all Progress & Wins fields before viewing the dashboard ──
   clearFieldError('q2-err');
-  if (!document.getElementById('q2-measurements').value.trim()) {
-    return showFieldError('q2-err', 'Please enter your measurement notes.', document.getElementById('q2-measurements'));
-  }
   if (!validateNumbers('q2-err', [
     ['p-sleepq', 'Sleep Quality', 1, 10],
     ['p-stressadapt', 'Stress Adaptability', 1, 10],
@@ -187,7 +227,6 @@ async function saveQ2AndGoProgress() {
   });
 
   currentEntry.q2 = {
-    measurementsNote: document.getElementById('q2-measurements').value.trim(),
     sleepq: gv('p-sleepq'),
     stressadapt: gv('p-stressadapt'),
     activeness: gv('p-activeness'),

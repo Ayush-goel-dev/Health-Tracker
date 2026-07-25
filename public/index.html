@@ -129,7 +129,7 @@
         <div class="field"><label>Contact Number</label><input type="tel" id="u-phone" placeholder="9876543210" inputmode="numeric" pattern="\d{10}" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)"></div>
       </div>
       <div class="form-cols">
-        <div class="field"><label>Program Duration (weeks)</label><input type="number" id="u-weeks" min="1" max="99" value="12" placeholder="e.g. 12" oninput="if(this.value>99)this.value=99"></div>
+        <div class="field"><label>Program Duration (months)</label><input type="number" id="u-months" min="1" max="24" value="3" placeholder="e.g. 3" oninput="if(this.value>24)this.value=24"></div>
         <div class="field"><label>Check-in Day</label>
           <select id="u-checkinday">
             <option value="">Select day</option>
@@ -182,30 +182,23 @@
     </div>
   </div>
 
-  <div class="two-col">
-    <div class="card">
-      <div class="card-label">Habits This Week</div>
-      <div id="fixed-habits-list">
-        <div class="habit-row"><div class="habit-left"><div class="habit-icon">🧘</div><div><div class="habit-name">Breathing before meals</div><div class="habit-hint">0–21 meals</div></div></div><input type="number" class="habit-input" id="h-breathing" min="0" max="21" placeholder="0–21"></div>
-        <div class="habit-row"><div class="habit-left"><div class="habit-icon">🚶</div><div><div class="habit-name">Walked after meals</div><div class="habit-hint">0–21 meals</div></div></div><input type="number" class="habit-input" id="h-walking" min="0" max="21" placeholder="0–21"></div>
-        <div class="habit-row"><div class="habit-left"><div class="habit-icon">🥩</div><div><div class="habit-name">Protein in most meals</div></div></div><div class="yesno-wrap"><button class="yn-btn yes" id="yn-protein-yes" onclick="setYN('protein','yes')">Yes</button><button class="yn-btn no" id="yn-protein-no" onclick="setYN('protein','no')">No</button></div></div>
-        <div class="habit-row"><div class="habit-left"><div class="habit-icon">📱</div><div><div class="habit-name">Screen-free 1hr before bed</div><div class="habit-hint">0–7 nights</div></div></div><input type="number" class="habit-input" id="h-screentime" min="0" max="7" placeholder="0–7"></div>
-      </div>
-      <div id="custom-habits-list"></div>
-      <button type="button" class="add-item-btn" onclick="addCustomItem('habit')">+ Add a Habit</button>
+  <div class="card">
+    <div class="card-label">Habits &amp; Rituals This Week</div>
+    <div id="fixed-habits-list">
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🧘</div><div><div class="habit-slider-name">Breathing before meals</div><div class="habit-slider-hint">0–21 meals</div></div></div><div class="habit-slider-val" id="hsv-breathing">0 / 21</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-breathing" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-breathing" min="0" max="21" value="0" oninput="updateHabitSlider('breathing',0,21)"></div><div class="habit-range-ticks"><span>0</span><span>21</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🚶</div><div><div class="habit-slider-name">Walked after meals</div><div class="habit-slider-hint">0–21 meals</div></div></div><div class="habit-slider-val" id="hsv-walking">0 / 21</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-walking" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-walking" min="0" max="21" value="0" oninput="updateHabitSlider('walking',0,21)"></div><div class="habit-range-ticks"><span>0</span><span>21</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🥩</div><div><div class="habit-slider-name">Protein in most meals</div></div></div><div class="yesno-wrap"><button class="yn-btn yes" id="yn-protein-yes" onclick="setYN('protein','yes')">Yes</button><button class="yn-btn no" id="yn-protein-no" onclick="setYN('protein','no')">No</button></div></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">📱</div><div><div class="habit-slider-name">Screen-free 1hr before bed</div><div class="habit-slider-hint">0–7 nights</div></div></div><div class="habit-slider-val" id="hsv-screentime">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-screentime" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-screentime" min="0" max="7" value="0" oninput="updateHabitSlider('screentime',0,7)"></div><div class="habit-range-ticks"><span>0</span><span>7</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🍵</div><div><div class="habit-slider-name">Evening tea (Sukoon/Viram)</div><div class="habit-slider-hint">0–7 nights</div></div></div><div class="habit-slider-val" id="hsv-tea">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-tea" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-tea" min="0" max="7" value="0" oninput="updateHabitSlider('tea',0,7)"></div><div class="habit-range-ticks"><span>0</span><span>7</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🌙</div><div><div class="habit-slider-name">Night healing ritual</div><div class="habit-slider-hint">tea + magnesium+ (0–7)</div></div></div><div class="habit-slider-val" id="hsv-nightritual">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-nightritual" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-nightritual" min="0" max="7" value="0" oninput="updateHabitSlider('nightritual',0,7)"></div><div class="habit-range-ticks"><span>0</span><span>7</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">💊</div><div><div class="habit-slider-name">Supplements consistently</div><div class="habit-slider-hint">0–7 days</div></div></div><div class="habit-slider-val" id="hsv-supplements">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-supplements" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-supplements" min="0" max="7" value="0" oninput="updateHabitSlider('supplements',0,7)"></div><div class="habit-range-ticks"><span>0</span><span>7</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">😴</div><div><div class="habit-slider-name">Sleep quality (avg)</div><div class="habit-slider-hint">1–10</div></div></div><div class="habit-slider-val" id="hsv-sleepquality">1 / 10</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-sleepquality" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-sleepquality" min="1" max="10" value="1" oninput="updateHabitSlider('sleepquality',1,10)"></div><div class="habit-range-ticks"><span>1</span><span>10</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">😰</div><div><div class="habit-slider-name">Stress level (avg)</div><div class="habit-slider-hint">1–10</div></div></div><div class="habit-slider-val" id="hsv-stress">1 / 10</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-stress" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-stress" min="1" max="10" value="1" oninput="updateHabitSlider('stress',1,10)"></div><div class="habit-range-ticks"><span>1</span><span>10</span></div></div>
     </div>
-    <div class="card">
-      <div class="card-label">Rituals &amp; Recovery</div>
-      <div id="fixed-rituals-list">
-        <div class="habit-row"><div class="habit-left"><div class="habit-icon">🍵</div><div><div class="habit-name">Evening tea (Sukoon/Viram)</div><div class="habit-hint">0–7 nights</div></div></div><input type="number" class="habit-input" id="h-tea" min="0" max="7" placeholder="0–7"></div>
-        <div class="habit-row"><div class="habit-left"><div class="habit-icon">🌙</div><div><div class="habit-name">Night healing ritual</div><div class="habit-hint">tea + magnesium+ (0–7)</div></div></div><input type="number" class="habit-input" id="h-nightritual" min="0" max="7" placeholder="0–7"></div>
-        <div class="habit-row"><div class="habit-left"><div class="habit-icon">💊</div><div><div class="habit-name">Supplements consistently</div><div class="habit-hint">0–7 days</div></div></div><input type="number" class="habit-input" id="h-supplements" min="0" max="7" placeholder="0–7"></div>
-        <div class="habit-row"><div class="habit-left"><div class="habit-icon">😴</div><div><div class="habit-name">Sleep quality (avg)</div><div class="habit-hint">1–10</div></div></div><input type="number" class="habit-input" id="h-sleepquality" min="1" max="10" placeholder="1–10"></div>
-        <div class="habit-row"><div class="habit-left"><div class="habit-icon">😰</div><div><div class="habit-name">Stress level (avg)</div><div class="habit-hint">1–10</div></div></div><input type="number" class="habit-input" id="h-stress" min="1" max="10" placeholder="1–10"></div>
-      </div>
-      <div id="custom-rituals-list"></div>
-      <button type="button" class="add-item-btn" onclick="addCustomItem('ritual')">+ Add a Ritual</button>
-    </div>
+    <div id="custom-habits-list"></div>
+    <button type="button" class="add-item-btn" onclick="addCustomItem('habit')">+ Add a Habit</button>
+    <div id="custom-rituals-list" style="margin-top:6px"></div>
+    <button type="button" class="add-item-btn" onclick="addCustomItem('ritual')">+ Add a Ritual</button>
   </div>
 
   <div class="two-col">
@@ -251,17 +244,13 @@
     <div><div class="sb-title" style="color:var(--green)">How Did You Progress?</div><div class="sb-sub" style="color:var(--green)">Your measurements, progress markers &amp; life wins.</div></div>
   </div>
 
-  <div class="card">
-    <div class="card-label">Upload Measurements</div>
-    <div class="upload-note-box">
-      <div class="upload-note-icon">📐</div>
-      <div class="field no-mb" style="flex:1"><label>Measurement Notes / Upload Reference</label><textarea id="q2-measurements" rows="3" placeholder="e.g. Uploaded photos to WhatsApp, or note weight/waist/etc. here…"></textarea></div>
-    </div>
-  </div>
-
   <!-- BODY MEASUREMENTS INPUT (v5) -->
   <div class="card">
     <div class="card-label">Body Measurements <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink4)">(optional — fill what you track)</span></div>
+    <div class="meas-form-import">
+      <button type="button" class="btn btn-ghost" id="meas-form-btn" onclick="importMeasurementForm()" style="height:38px;padding:0 16px;font-size:13px">⤵ Import from Google Form</button>
+      <span class="meas-form-status" id="meas-form-status"></span>
+    </div>
     <div class="form-cols-4">
       <div class="field no-mb"><label>Weight (kg)</label><input type="number" step="0.1" id="m-weight" placeholder="e.g. 72"></div>
       <div class="field no-mb"><label>Waist (cm)</label><input type="number" step="0.1" id="m-waist" placeholder="e.g. 84"></div>
@@ -470,21 +459,7 @@
           <div class="empty-state meas-empty-state" id="meas-empty" style="display:none">No measurements entered yet. Add weight, waist, etc. in the Progress &amp; Wins section of your next check-in.</div>
         </div>
         <div class="body-silhouette">
-          <svg width="120" height="220" viewBox="0 0 120 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="60" cy="22" r="18" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
-            <rect x="54" y="38" width="12" height="10" rx="4" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
-            <path d="M33 52 Q24 72 26 105 L94 105 Q96 72 87 52 Q75 48 60 48 Q45 48 33 52Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
-            <path d="M33 55 Q16 75 18 108 L28 108 Q31 84 40 62Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
-            <path d="M87 55 Q104 75 102 108 L92 108 Q89 84 80 62Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
-            <path d="M26 104 Q20 122 24 138 L96 138 Q100 122 94 104Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
-            <path d="M26 136 Q20 164 24 198 L46 198 Q46 167 42 136Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
-            <path d="M94 136 Q100 164 96 198 L74 198 Q74 167 78 136Z" stroke="var(--ink4)" stroke-width="2" fill="var(--surface2)"/>
-            <circle id="bdot-neck" cx="60" cy="43" r="4.5" fill="var(--brand)" stroke="#fff" stroke-width="1.5" opacity="0"/>
-            <circle id="bdot-chest" cx="80" cy="70" r="4.5" fill="var(--brand)" stroke="#fff" stroke-width="1.5" opacity="0"/>
-            <circle id="bdot-waist" cx="100" cy="88" r="4.5" fill="var(--brand)" stroke="#fff" stroke-width="1.5" opacity="0"/>
-            <circle id="bdot-hips" cx="100" cy="118" r="4.5" fill="var(--brand)" stroke="#fff" stroke-width="1.5" opacity="0"/>
-            <circle id="bdot-thighs" cx="88" cy="158" r="4.5" fill="var(--brand)" stroke="#fff" stroke-width="1.5" opacity="0"/>
-          </svg>
+          <div id="body-figure" class="body-figure"></div>
           <div class="body-legend" id="body-legend"></div>
         </div>
       </div>
@@ -506,8 +481,6 @@
         </div>
         <div class="week-pill" id="p2-week">This Week</div>
       </div>
-      <div class="dark-card-label" style="margin-bottom:8px">Measurement Notes</div>
-      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;font-size:12px;color:rgba(247,245,240,0.7);line-height:1.6" id="dash-meas-note">No measurement notes logged yet.</div>
     </div>
 
     <!-- Consistency Chart -->

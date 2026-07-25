@@ -184,22 +184,41 @@ function buildSlide1(latest,prev,history) {
   const otherTags = q1.otherTags||[];
   const notes     = q1.notes||'';
   const allBns    = [...bns.filter(b=>b!=='Other'), ...otherTags];
+  // Funnel visual (ported from v5): narrowing ranked layers, tap-to-expand detail.
+  const funnelColors        = ['#c23b3b','#c45c1a','#b8922a','#1a7a7a','#2d7a4f'];
+  const funnelChevronColors = ['#a82e2e','#a84e14','#9e7a22','#156666','#246843'];
   let bnHtml = '';
   if (!allBns.length) {
-    bnHtml = '<div class="empty-state">No bottleneck selected this week.</div>';
+    bnHtml = '<div class="funnel-empty">✅ <span>No bottlenecks flagged this week — great consistency!</span></div>';
   } else {
-    bnHtml = allBns.map(bn => {
+    bnHtml = `<div style="font-size:11px;color:var(--ink4);font-family:var(--font-mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px">Top bottlenecks funnelling into your progress — tap to expand</div>`;
+    bnHtml += `<div class="funnel-wrap">`;
+    allBns.forEach((bn, i) => {
       const k = bnKnowledge[bn];
-      if (!k) return `<div class="bn-analysis-item"><div class="bn-analysis-label">Bottleneck</div><div class="bn-analysis-title">${esc(bn)}</div></div>`;
-      return `<div class="bn-analysis-item">
-        <div class="bn-analysis-label">Bottleneck</div>
-        <div class="bn-analysis-title">${esc(bn)}</div>
-        <div class="bn-analysis-section"><div class="bn-analysis-section-label">Problem caused</div><div class="bn-analysis-section-body">${esc(k.problem)}</div></div>
-        <div class="bn-impacts">${k.impacts.map(i=>`<span class="bn-impact-tag">${i}</span>`).join('')}</div>
-        <div class="bn-analysis-section suggestion"><div class="bn-analysis-section-label">Suggestion</div><div class="bn-analysis-section-body">${esc(k.suggestion)}</div></div>
+      const w = Math.max(40, 100 - i*14); // narrowing funnel
+      const col = funnelColors[i % funnelColors.length];
+      const chCol = funnelChevronColors[i % funnelChevronColors.length];
+      const isLast = i === allBns.length - 1;
+      bnHtml += `<div class="funnel-layer" onclick="toggleFunnel(${i})" style="width:100%">
+        <div class="funnel-shape" style="width:${w}%;background:${col};padding:${14 - i*1.5}px 20px;border-radius:${i===0?'10px 10px 4px 4px':'4px'}">
+          <span class="funnel-rank">#${i+1}</span>
+          <div><div class="funnel-label">${esc(bn)}</div>${k?`<div class="funnel-sub">${k.impacts.slice(0,3).join(' · ')}</div>`:''}</div>
+        </div>
+        ${!isLast?`<div class="funnel-chevron" style="border-top-color:${chCol}"></div>`:''}
       </div>`;
-    }).join('');
-    if (notes) bnHtml += `<div style="margin-top:10px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);font-size:12px;color:var(--ink3);font-style:italic">"${esc(notes)}"</div>`;
+      if (k) {
+        bnHtml += `<div class="funnel-detail" id="funnel-detail-${i}">
+          <div class="funnel-detail-title">${esc(bn)}</div>
+          <div class="funnel-detail-body">${esc(k.problem)}</div>
+          <div class="funnel-impacts">${k.impacts.map(t=>`<span class="funnel-impact-tag">${t}</span>`).join('')}</div>
+          <div class="funnel-suggestion">💡 ${esc(k.suggestion)}</div>
+        </div>`;
+      } else {
+        bnHtml += `<div class="funnel-detail" id="funnel-detail-${i}"><div class="funnel-detail-title">${esc(bn)}</div><div class="funnel-detail-body">Added as a custom bottleneck this week.</div></div>`;
+      }
+    });
+    bnHtml += `</div>`;
+    if (notes) bnHtml += `<div style="margin-top:14px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);font-size:12px;color:var(--ink3);font-style:italic">"${esc(notes)}"</div>`;
   }
   document.getElementById('bottleneck-display').innerHTML = bnHtml;
 
@@ -234,15 +253,14 @@ function buildMeasurements(latest, history) {
   const tbody = document.getElementById('meas-tbody');
   const table = document.getElementById('meas-table');
   const empty = document.getElementById('meas-empty');
-  ['bdot-neck', 'bdot-chest', 'bdot-waist', 'bdot-hips', 'bdot-thighs'].forEach(id => {
-    const d = document.getElementById(id); if (d) d.style.opacity = '0';
-  });
   const legEl = document.getElementById('body-legend');
+  const figEl = document.getElementById('body-figure');
 
   if (!filled.length) {
     if (table) table.style.display = 'none';
     if (empty) empty.style.display = 'block';
     if (legEl) legEl.innerHTML = '';
+    if (figEl) figEl.innerHTML = '';
     return;
   }
   if (table) table.style.display = '';
@@ -259,15 +277,81 @@ function buildMeasurements(latest, history) {
     return `<tr><td style="font-weight:600">${m.label}</td><td>${startV != null ? startV + ' ' + m.unit : '—'}</td><td>${curV} ${m.unit}</td>${deltaCell}</tr>`;
   }).join('');
 
-  const legendItems = [];
-  filled.forEach(m => {
-    if (m.dotId) {
-      const d = document.getElementById(m.dotId); if (d) d.style.opacity = '1';
-      legendItems.push(`<div class="body-legend-item"><span class="body-legend-dot" style="background:var(--brand)"></span>${m.label.replace(/[^\w\s]/g, '').trim()}</div>`);
-    }
-  });
-  if (legEl) legEl.innerHTML = legendItems.join('');
+  // Morphing silhouette: dashed "start" outline vs filled "latest" shape.
+  const hasStart = history.length > 1 && Object.keys(firstM).length > 0;
+  buildBodyFigure(hasStart ? firstM : null, curM);
+  if (legEl) {
+    legEl.innerHTML = hasStart
+      ? '<div class="body-legend-item"><span class="body-legend-key body-legend-start"></span>Starting week</div>'
+        + '<div class="body-legend-item"><span class="body-legend-key body-legend-latest"></span>Latest week</div>'
+      : '<div class="body-legend-item"><span class="body-legend-key body-legend-latest"></span>Latest week</div>';
+  }
 }
+
+/* Parametric humanoid whose torso / waist / hips widths follow the actual
+   measurements. Draws a dashed START outline behind a filled LATEST shape so
+   the change between the two weeks is visible at a glance. */
+function buildBodyFigure(startM, curM) {
+  const fig = document.getElementById('body-figure');
+  if (!fig) return;
+
+  // Derive body half-widths (px) from measurements, with sensible fallbacks so
+  // a partially-filled week still renders a plausible figure. Widths are built
+  // from a baseline half-width plus the deviation from a reference size,
+  // amplified so a few cm of real change reads clearly on the figure.
+  const shape = (m) => {
+    const waist = num(m.waist) ?? (num(m.weight) != null ? num(m.weight) * 1.02 : 80);
+    const chest = num(m.chest) ?? waist + 12;
+    const hips = num(m.hips) ?? waist + 10;
+    return {
+      chestHalf: clamp(21 + (chest - 96) * 0.5, 12, 46),
+      waistHalf: clamp(18 + (waist - 80) * 0.5, 10, 44),
+      hipHalf: clamp(21 + (hips - 96) * 0.5, 12, 46),
+    };
+  };
+
+  const body = (s, opts) => {
+    const cx = 60;
+    // Key vertical anchors on the 120×230 canvas.
+    const shoulderY = 58, chestY = 78, waistY = 118, hipY = 150, kneeY = 196, ankleY = 224;
+    const ch = s.chestHalf, wa = s.waistHalf, hp = s.hipHalf;
+    const legTop = hp * 0.62, ankle = 6;
+    const torso =
+      `M${cx - ch * 0.7} ${shoulderY} `
+      + `C${cx - ch} ${chestY - 6} ${cx - ch} ${chestY} ${cx - ch} ${chestY} `
+      + `C${cx - wa - 2} ${chestY + 14} ${cx - wa} ${waistY - 8} ${cx - wa} ${waistY} `
+      + `C${cx - hp} ${waistY + 12} ${cx - hp} ${hipY - 6} ${cx - hp} ${hipY} `
+      + `L${cx + hp} ${hipY} `
+      + `C${cx + hp} ${hipY - 6} ${cx + hp} ${waistY + 12} ${cx + wa} ${waistY} `
+      + `C${cx + wa} ${waistY - 8} ${cx + wa + 2} ${chestY + 14} ${cx + ch} ${chestY} `
+      + `C${cx + ch} ${chestY} ${cx + ch} ${chestY - 6} ${cx + ch * 0.7} ${shoulderY} Z`;
+    // Legs (simple tapered).
+    const legL = `M${cx - hp} ${hipY} L${cx - legTop} ${kneeY} L${cx - ankle - 6} ${ankleY} L${cx - 2} ${ankleY} L${cx - 2} ${hipY} Z`;
+    const legR = `M${cx + hp} ${hipY} L${cx + legTop} ${kneeY} L${cx + ankle + 6} ${ankleY} L${cx + 2} ${ankleY} L${cx + 2} ${hipY} Z`;
+    const head = `<circle cx="${cx}" cy="34" r="16" ${opts.attrs}/>`;
+    const neck = `<rect x="${cx - 6}" y="47" width="12" height="12" rx="4" ${opts.attrs}/>`;
+    return `${head}${neck}<path d="${torso}" ${opts.attrs}/><path d="${legL}" ${opts.attrs}/><path d="${legR}" ${opts.attrs}/>`;
+  };
+
+  const parts = [];
+  if (startM) {
+    parts.push(body(shape(startM), {
+      attrs: 'fill="none" stroke="var(--ink4)" stroke-width="2" stroke-dasharray="4 4" stroke-linejoin="round"',
+    }));
+  }
+  parts.push(body(shape(curM), {
+    attrs: 'fill="var(--brand-light)" stroke="var(--brand)" stroke-width="2.5" stroke-linejoin="round"',
+  }));
+
+  fig.innerHTML =
+    `<svg width="130" height="238" viewBox="0 0 120 232" fill="none" xmlns="http://www.w3.org/2000/svg">${parts.join('')}</svg>`;
+}
+
+function num(v) {
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n : null;
+}
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
 /* ═══════════════════════════════════════════
    HEALTH-SCORE JOURNEY ROADMAP (ported from v5)

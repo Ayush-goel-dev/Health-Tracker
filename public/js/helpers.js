@@ -57,6 +57,17 @@ function getScaleVal(id) {
   return container ? parseInt(container.dataset.selected, 10) || 0 : 0;
 }
 
+// Live update for the fancy habit sliders (fill width + value pill).
+function updateHabitSlider(key, min, max) {
+  const input = document.getElementById('h-' + key);
+  if (!input) return;
+  const val = +input.value;
+  const vEl = document.getElementById('hsv-' + key);
+  if (vEl) vEl.textContent = val + ' / ' + max;
+  const fill = document.getElementById('hrf-' + key);
+  if (fill) fill.style.width = ((val - min) / (max - min)) * 100 + '%';
+}
+
 const ynState = {};
 function setYN(key, value) {
   ynState[key] = value;
@@ -78,6 +89,15 @@ function toggleBottleneck(element) {
   }
   document.getElementById('other-bottleneck-card').style.display =
     selectedBottlenecks.includes('Other') ? 'block' : 'none';
+}
+
+// Bottleneck funnel: expand one detail panel at a time (accordion).
+function toggleFunnel(index) {
+  const el = document.getElementById('funnel-detail-' + index);
+  if (!el) return;
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.funnel-detail').forEach(d => d.classList.remove('open'));
+  if (!wasOpen) el.classList.add('open');
 }
 
 function toggleOtherChip(element) {

@@ -19,9 +19,9 @@ async function saveProfile() {
     errorElement.style.display = 'block';
     return;
   }
-  const weeksNum = Number(document.getElementById('u-weeks').value) || 12;
-  if (weeksNum < 1 || weeksNum > 99) {
-    errorElement.textContent = 'Program duration must be between 1 and 99 weeks.';
+  const monthsNum = Number(document.getElementById('u-months').value) || 3;
+  if (monthsNum < 1 || monthsNum > 24) {
+    errorElement.textContent = 'Program duration must be between 1 and 24 months.';
     errorElement.style.display = 'block';
     return;
   }
@@ -32,7 +32,7 @@ async function saveProfile() {
     age: ageRaw,
     email: document.getElementById('u-email').value.trim(),
     phone,
-    weeks: Math.max(1, Math.min(99, weeksNum)),
+    weeks: Math.max(1, Math.round(monthsNum * 4)), // months entered, tracked weekly (4 wks/mo)
     checkinDay: document.getElementById('u-checkinday').value.trim(),
   };
 
@@ -103,7 +103,7 @@ function populateProfileFields(user = {}) {
   document.getElementById('u-age').value = user.age || '';
   document.getElementById('u-email').value = user.email || '';
   document.getElementById('u-phone').value = user.phone || '';
-  document.getElementById('u-weeks').value = user.weeks || 12;
+  document.getElementById('u-months').value = Math.max(1, Math.round((user.weeks || 12) / 4));
   document.getElementById('u-checkinday').value = user.checkinDay || '';
 }
 
