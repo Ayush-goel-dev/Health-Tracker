@@ -343,68 +343,76 @@
       <button class="btn btn-ghost dash-pdf-btn" onclick="downloadDashboardPDF()">⤓&nbsp; Download PDF</button>
     </div>
 
+    <!-- WEEKLY REPORT HERO (v5) -->
+    <div class="report-hero">
+      <div class="rh-top">
+        <div>
+          <div class="rh-eyebrow">Weekly Progress Report</div>
+          <div class="rh-title">Hey <em id="rh-name">there</em>,<br>here's how your week went.</div>
+          <div class="rh-sub" id="rh-sub">Your complete weekly picture — scores, habits, body &amp; wins.</div>
+        </div>
+        <div class="hero-scores">
+          <div class="hero-score-ring-wrap">
+            <svg class="hero-score-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+              <circle id="hero-ring-health" cx="50" cy="50" r="40" fill="none" stroke="url(#hg1)" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+              <defs><linearGradient id="hg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#c9bcff"/><stop offset="100%" stop-color="#7c6ddb"/></linearGradient></defs>
+              <text x="50" y="47" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-size="20" fill="#f7f5f0" id="hero-score-val">—</text>
+              <text x="50" y="60" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(247,245,240,0.4)">/10</text>
+            </svg>
+            <div class="hero-score-label">Health Score</div>
+          </div>
+          <div class="hero-score-ring-wrap">
+            <svg class="hero-score-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+              <circle id="hero-ring-cons" cx="50" cy="50" r="40" fill="none" stroke="url(#hg2)" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+              <defs><linearGradient id="hg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7fd9a0"/><stop offset="100%" stop-color="#2d7a4f"/></linearGradient></defs>
+              <text x="50" y="47" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-size="18" fill="#f7f5f0" id="hero-cons-val">—</text>
+              <text x="50" y="60" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(247,245,240,0.4)">%</text>
+            </svg>
+            <div class="hero-score-label">Consistency</div>
+          </div>
+        </div>
+      </div>
+      <div class="rh-badges">
+        <div class="rh-badge"><span class="rh-badge-icon">📅</span><div><div class="rh-badge-val" id="rh-week">Wk —</div><div class="rh-badge-lbl">Current Week</div></div></div>
+        <div class="rh-badge"><span class="rh-badge-icon">📈</span><div><div class="rh-badge-val" id="rh-trend">—</div><div class="rh-badge-lbl">vs Last Week</div></div></div>
+        <div class="rh-badge"><span class="rh-badge-icon">📆</span><div><div class="rh-badge-val" id="rh-date">—</div><div class="rh-badge-lbl">Check-in Date</div></div></div>
+      </div>
+    </div>
+
     <!-- OVERVIEW STRIP -->
     <div class="overview-strip" id="overview-strip">
       <div class="ov-item"><div class="ov-val" id="ov-sessions">—</div><div class="ov-lbl">Total Check-ins</div></div>
       <div class="ov-item"><div class="ov-val" id="ov-avg">—</div><div class="ov-lbl">Avg Consistency</div></div>
       <div class="ov-item"><div class="ov-val" id="ov-best">—</div><div class="ov-lbl">Best Week</div></div>
-      <div class="ov-item"><div class="ov-val" id="ov-streak">—</div><div class="ov-lbl">Program Week</div></div>
+      <div class="ov-item"><div class="ov-val" id="ov-streak">—</div><div class="ov-lbl">Total Weeks</div></div>
     </div>
     <div class="program-bar-wrap" id="program-bar-wrap" style="display:none">
       <div class="program-bar-track"><div class="program-bar-fill" id="program-bar-fill" style="width:0%"></div></div>
       <div class="program-bar-label" id="program-bar-label"></div>
     </div>
 
-    <!-- INNER STATE DASHBOARD -->
-    <div class="dark-card">
-      <div class="dash-header">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="dash-badge" style="background:rgba(229,9,20,0.18);color:#f87171;border:2px solid rgba(229,9,20,0.3)">1</div>
-          <div><div class="dash-title">Inner State Dashboard</div><div class="dash-sub">How you feel. How you function.</div></div>
-        </div>
-        <div class="week-pill" id="p1-week">This Week</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.04);border-radius:16px;padding:22px 24px">
-        <div class="dark-card-label" style="margin-bottom:14px">Weekly Scores</div>
-        <div class="dual-rings">
-          <div class="dual-ring">
-            <svg width="94" height="94" viewBox="0 0 100 100">
-              <circle class="ring-bg" cx="50" cy="50" r="42"/>
-              <circle class="ring-fill" id="ring-fill-1" cx="50" cy="50" r="42" stroke="#22C55E" stroke-dasharray="264" stroke-dashoffset="264"/>
-              <text class="ring-score-num" x="50" y="52" text-anchor="middle" dominant-baseline="middle" font-family="Fraunces,Georgia,serif" font-size="24" fill="#fff" id="ring-score-1">—</text>
-              <text x="50" y="68" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(255,255,255,0.4)">/10</text>
-            </svg>
-            <div class="dual-ring-lbl">Health Score</div>
-          </div>
-          <div class="dual-ring">
-            <svg width="94" height="94" viewBox="0 0 100 100">
-              <circle class="ring-bg" cx="50" cy="50" r="42"/>
-              <circle class="ring-fill" id="ring-fill-cons" cx="50" cy="50" r="42" stroke="#16A34A" stroke-dasharray="264" stroke-dashoffset="264"/>
-              <text class="ring-score-num" x="50" y="52" text-anchor="middle" dominant-baseline="middle" font-family="Fraunces,Georgia,serif" font-size="22" fill="#fff" id="ring-cons-1">—</text>
-              <text x="50" y="68" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(255,255,255,0.4)">%</text>
-            </svg>
-            <div class="dual-ring-lbl">Consistency</div>
-          </div>
-          <div class="ring-info">
-            <div class="ring-label" id="ring-label">Health Score</div>
-            <div class="ring-sub" id="ring-message">Complete check-in to see score.</div>
-            <div class="ring-delta" id="ring-delta" style="display:none">—</div>
-          </div>
-        </div>
-        <div class="ring-hinglish" id="ring-hinglish">
-          <b>Health Score kya hota hai?</b> Yeh score teen cheezon se banta hai — Health Awareness, Mood, aur Intent — in teenon ka average.
-        </div>
-      </div>
-    </div>
-
     <!-- HEALTH-SCORE JOURNEY (v5) -->
-    <div class="card">
+    <div class="card card-fancy">
       <div class="card-label">Your Health-Score Journey — Week by Week</div>
       <div class="roadmap-wrap" id="roadmap-wrap"><div class="empty-state">Complete a check-in to see your journey.</div></div>
     </div>
 
+    <!-- CONSISTENCY SCORE — ALL WEEKS (v5) -->
+    <div class="card card-fancy">
+      <div class="card-label">Consistency Score — All Weeks</div>
+      <div class="con-bar-track" style="margin-bottom:6px"><div class="con-bar-fill" id="con-bar" style="width:0%"></div></div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:16px">
+        <span style="font-family:var(--font-serif);font-size:42px;font-weight:400;color:var(--green)" id="con-pct">—</span>
+        <span style="font-size:11px;color:var(--ink4);font-family:var(--font-mono)">/ 100 this week</span>
+        <div class="con-sub" id="con-custom-note" style="margin-left:auto"></div>
+      </div>
+      <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+    </div>
+
     <!-- INNER STATE RADAR (v5) -->
-    <div class="card">
+    <div class="card card-fancy">
       <div class="radar-layout">
         <div class="radar-main">
           <div class="card-label">Inner State Radar</div>
@@ -491,12 +499,6 @@
         </div>
         <div class="week-pill" id="p2-week">This Week</div>
       </div>
-    </div>
-
-    <!-- Consistency Chart -->
-    <div class="card">
-      <div class="card-label">Consistency Growth — All Weeks</div>
-      <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
     </div>
 
     <!-- THIS WEEK'S WINS CELEBRATION (v5) -->

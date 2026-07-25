@@ -11,10 +11,10 @@ function buildOverview() {
     const best = Math.max(...h.map(e=>e.consistency));
     document.getElementById('ov-avg').textContent  = avg.toFixed(0)+'%';
     document.getElementById('ov-best').textContent = best.toFixed(0)+'%';
-    document.getElementById('ov-streak').textContent = `${Math.min(h.length,totalWeeks)}/${totalWeeks}`;
+    document.getElementById('ov-streak').textContent = h.length;
   } else {
     ['ov-avg','ov-best'].forEach(id => document.getElementById(id).textContent='—');
-    document.getElementById('ov-streak').textContent = `0/${totalWeeks}`;
+    document.getElementById('ov-streak').textContent = '0';
   }
   const barWrap = document.getElementById('program-bar-wrap');
   if (user) {
@@ -104,35 +104,31 @@ function buildSlide1(latest,prev,history) {
   const cons= latest.consistency||0;
   const bns = q1.bottlenecks||[];
 
-  // ── INNER STATE / HEALTH SCORE ──────────────────────
+  // ── WEEKLY REPORT HERO (health + consistency rings, greeting, badges) ──
   const healingScore = (((q1.energy||0)+(q1.mood||0)+(q1.motivation||0))/3)||Math.round(cons/10*10)/10;
   const rs = Math.round(healingScore*10)/10;
-  const circ = 2*Math.PI*42;
-  document.getElementById('ring-fill-1').style.strokeDashoffset = circ-(rs/10)*circ;
-  document.getElementById('ring-fill-1').setAttribute('stroke', rs>=8?'#22C55E':rs>=6?'#F59E0B':'#F87171');
-  document.getElementById('ring-score-1').textContent = rs||'—';
-  // Consistency ring (dual-ring header)
-  const rfc = document.getElementById('ring-fill-cons');
-  if (rfc) {
-    rfc.style.strokeDashoffset = circ-(cons/100)*circ;
-    rfc.setAttribute('stroke', cons>=75?'#22C55E':cons>=50?'#F59E0B':'#F87171');
-    const rc1 = document.getElementById('ring-cons-1');
-    if (rc1) rc1.textContent = cons || '—';
+  const circ = 2*Math.PI*40;
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const heroUser = getUser() || {};
+  setText('rh-name', (heroUser.name || 'there').split(' ')[0]);
+  const rHealth = document.getElementById('hero-ring-health');
+  if (rHealth) rHealth.style.strokeDashoffset = circ - (rs/10)*circ;
+  const rCons = document.getElementById('hero-ring-cons');
+  if (rCons) rCons.style.strokeDashoffset = circ - (cons/100)*circ;
+  setText('hero-score-val', rs || '—');
+  setText('hero-cons-val', cons || '—');
+  setText('rh-week', 'Week ' + history.length);
+  const trendEl = document.getElementById('rh-trend');
+  if (trendEl) {
+    if (prev) {
+      const ps = ((prev.q1?.energy||0)+(prev.q1?.mood||0)+(prev.q1?.motivation||0))/3;
+      const d = +(rs-ps).toFixed(1);
+      if (d > 0) { trendEl.textContent = '↑ Better'; trendEl.style.color = '#7fd9a0'; }
+      else if (d < 0) { trendEl.textContent = '↓ Lower'; trendEl.style.color = '#e87a7a'; }
+      else { trendEl.textContent = '→ Same'; trendEl.style.color = 'rgba(247,245,240,0.5)'; }
+    } else { trendEl.textContent = 'First week ✨'; trendEl.style.color = ''; }
   }
-  const msgs = rs>=8?['Great Progress! 🎉','Your body is healing. Consistency is improving.']:
-    rs>=6?['Good Progress 👍','Solid week. Push a little harder.']:
-    rs>=4?['Getting There 🌱','Foundation building. Small improvements add up.']:
-    ['Needs Focus ⚠️','Identify one thing to fix and focus.'];
-  document.getElementById('ring-label').textContent   = msgs[0];
-  document.getElementById('ring-message').textContent = msgs[1];
-  document.getElementById('ring-hinglish').innerHTML = `<b>Health Score kya hota hai?</b> Yeh score Health Awareness, Mood, aur Intent — in teenon ka average hai.`;
-  if (prev) {
-    const ps = ((prev.q1?.energy||0)+(prev.q1?.mood||0)+(prev.q1?.motivation||0))/3;
-    const diff = (rs-ps).toFixed(1);
-    const de = document.getElementById('ring-delta');
-    de.style.display='inline-flex'; de.className='ring-delta '+(diff>=0?'up':'down');
-    de.textContent=(diff>=0?'↑ +':'↓ ')+diff+' from last week';
-  }
+  setText('rh-date', latest.date || '—');
   // ── CONSISTENCY SCORE ───────────────────────────────
   // (The standalone number card was removed — consistency now shows as the
   // hero ring plus the Consistency Growth graph. Guard in case markup is absent.)
