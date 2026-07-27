@@ -5,18 +5,8 @@ function buildOverview() {
   const h = getHistory();
   const user = getUser();
   const totalWeeks = user?.weeks || 12;
-  document.getElementById('ov-sessions').textContent = h.length || '—';
-  if (h.length) {
-    const avg  = h.reduce((a,e)=>a+e.consistency,0) / h.length;
-    const best = Math.max(...h.map(e=>e.consistency));
-    document.getElementById('ov-avg').textContent  = avg.toFixed(0)+'%';
-    document.getElementById('ov-best').textContent = best.toFixed(0)+'%';
-    document.getElementById('ov-streak').textContent = h.length;
-  } else {
-    ['ov-avg','ov-best'].forEach(id => document.getElementById(id).textContent='—');
-    document.getElementById('ov-streak').textContent = '0';
-  }
   const barWrap = document.getElementById('program-bar-wrap');
+  if (!barWrap) return;
   if (user) {
     const pct = Math.min(100, Math.round((h.length/totalWeeks)*100));
     barWrap.style.display = 'block';
@@ -91,6 +81,16 @@ function downloadDashboardPDF() {
 /* ═══════════════════════════════════════════
    SLIDE 1 — INNER STATE DASHBOARD
 ═══════════════════════════════════════════ */
+// Health Score on a /100 scale — average of the three inner-state feelings
+// (Health Awareness, Mood, Intent, each 1–10) scaled ×10. Falls back to the
+// consistency score when no feelings were recorded.
+function healthScore100(entry, consFallback) {
+  const q1 = (entry && entry.q1) || {};
+  const feelings = (q1.energy || 0) + (q1.mood || 0) + (q1.motivation || 0);
+  if (feelings > 0) return Math.round((feelings / 3) * 10);
+  return Math.round(consFallback || 0);
+}
+
 function buildSlide1(latest,prev,history) {
   if (!latest) return;
   const user = getUser();
@@ -104,71 +104,56 @@ function buildSlide1(latest,prev,history) {
   const cons= latest.consistency||0;
   const bns = q1.bottlenecks||[];
 
-  // ── WEEKLY REPORT HERO (health + consistency rings, greeting, badges) ──
-  const healingScore = (((q1.energy||0)+(q1.mood||0)+(q1.motivation||0))/3)||Math.round(cons/10*10)/10;
-  const rs = Math.round(healingScore*10)/10;
-  const circ = 2*Math.PI*40;
+  // ── WEEKLY REPORT HERO — Health Intelligence Report (image7, /100) ──
+  const healthScore = healthScore100(latest, cons);   // 0–100
+  const circ = 2 * Math.PI * 42;                       // r = 42 in the light hero
   const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   const heroUser = getUser() || {};
   setText('rh-name', (heroUser.name || 'there').split(' ')[0]);
   const rHealth = document.getElementById('hero-ring-health');
-  if (rHealth) rHealth.style.strokeDashoffset = circ - (rs/10)*circ;
+  if (rHealth) rHealth.style.strokeDashoffset = circ - (healthScore / 100) * circ;
   const rCons = document.getElementById('hero-ring-cons');
-  if (rCons) rCons.style.strokeDashoffset = circ - (cons/100)*circ;
-  setText('hero-score-val', rs || '—');
+  if (rCons) rCons.style.strokeDashoffset = circ - (cons / 100) * circ;
+  setText('hero-score-val', healthScore || '—');
   setText('hero-cons-val', cons || '—');
-  setText('rh-week', 'Week ' + history.length);
+  setText('rh-week', `Week ${Math.min(history.length, totalWeeks)} of ${totalWeeks}`);
+  // Health-score trend vs last week (in /100 points)
   const trendEl = document.getElementById('rh-trend');
   if (trendEl) {
     if (prev) {
-      const ps = ((prev.q1?.energy||0)+(prev.q1?.mood||0)+(prev.q1?.motivation||0))/3;
-      const d = +(rs-ps).toFixed(1);
-      if (d > 0) { trendEl.textContent = '↑ Better'; trendEl.style.color = '#7fd9a0'; }
-      else if (d < 0) { trendEl.textContent = '↓ Lower'; trendEl.style.color = '#e87a7a'; }
-      else { trendEl.textContent = '→ Same'; trendEl.style.color = 'rgba(247,245,240,0.5)'; }
-    } else { trendEl.textContent = 'First week ✨'; trendEl.style.color = ''; }
+      const ps = healthScore100(prev, prev.consistency || 0);
+      const d = healthScore - ps;
+      if (d > 0)      { trendEl.innerHTML = `<span style="color:#15A34A">↑ +${d} vs last week</span>`; }
+      else if (d < 0) { trendEl.innerHTML = `<span style="color:#C1121F">↓ ${d} vs last week</span>`; }
+      else            { trendEl.innerHTML = `<span style="color:var(--ink4)">→ same as last week</span>`; }
+    } else { trendEl.innerHTML = `<span style="color:var(--ink4)">First week ✨</span>`; }
+  }
+  // Consistency streak — trailing consecutive weeks logged
+  const streakEl = document.getElementById('rh-streak');
+  if (streakEl) {
+    const n = history.length;
+    streakEl.innerHTML = `<span>🔥 ${n}-Week Streak</span>`;
   }
   setText('rh-date', latest.date || '—');
-  // ── CONSISTENCY SCORE ───────────────────────────────
-  // (The standalone number card was removed — consistency now shows as the
-  // hero ring plus the Consistency Growth graph. Guard in case markup is absent.)
+
+  // ── CONSISTENCY OVER TIME (merged card) ─────────────
   const conPct = document.getElementById('con-pct');
   if (conPct) conPct.textContent = cons;
   const conBar = document.getElementById('con-bar');
   if (conBar) conBar.style.width = cons + '%';
+  const conDeltaEl = document.getElementById('con-delta');
+  if (conDeltaEl) {
+    if (prev) {
+      const cd = cons - (prev.consistency || 0);
+      if (cd > 0)      conDeltaEl.innerHTML = `<span class="up">↑ ${cd}</span> vs last week`;
+      else if (cd < 0) conDeltaEl.innerHTML = `<span class="down">↓ ${Math.abs(cd)}</span> vs last week`;
+      else             conDeltaEl.innerHTML = `<span class="flat">→ 0</span> vs last week`;
+    } else { conDeltaEl.innerHTML = `<span class="flat">First week ✨</span>`; }
+  }
   const customNote = document.getElementById('con-custom-note');
   if (customNote) customNote.textContent = (latest.filledCustoms&&latest.filledCustoms.length)
     ? `Includes ${latest.filledCustoms.length} custom habit/ritual${latest.filledCustoms.length>1?'s':''}: ${latest.filledCustoms.map(c=>c.name).join(', ')}.`
     : '';
-
-  // ── HABIT → RESULT IMPACT ───────────────────────────
-  const hriWrap  = document.getElementById('habit-result-impact');
-  const hriItems = [];
-  if (q1.walking >= 5)   hriItems.push({pos:true,  icon:'✅', text:`Aapne Daily Walk ${q1.walking} baar ki hai. Isse digestion improve hoti hai, stress markers reduce hote hain, aur recovery score better hota hai.`});
-  else if (q1.walking <= 2 && prev) hriItems.push({pos:false, icon:'❌', text:`Aapne sirf ${q1.walking} baar walk ki. Iska impact digestion slowdown, bloating, aur reduced energy levels par dikh sakta hai.`});
-  if (q1.nightritual >= 5 && q1.sleepquality >= 7) hriItems.push({pos:true, icon:'✅', text:`Aapne Night Healing Ritual ${q1.nightritual} baar follow kiya. Sleep quality ${q1.sleepquality}/10 rahi aur morning energy levels better huye hain.`});
-  else if (q1.nightritual <= 2) hriItems.push({pos:false, icon:'❌', text:`Night Healing Ritual sirf ${q1.nightritual} baar follow hua. Deep sleep reduce ho sakti hai aur recovery capacity impact hoti hai.`});
-  const screen = q1.screentime||0;
-  if (screen >= 5) hriItems.push({pos:true,  icon:'✅', text:`Aapne screen-free time ${screen} raat maintain kiya. Iska seedha faida melatonin production aur sleep depth par padta hai.`});
-  else if (screen <= 2) hriItems.push({pos:false, icon:'❌', text:`Screen-free 1hr before bed sirf ${screen} raat follow hua. Late-night screen exposure melatonin ko delay karta hai.`});
-  if (q1.protein === 'yes') hriItems.push({pos:true, icon:'✅', text:`Protein consistency maintain rahi. Iska positive impact cravings control, muscle recovery, aur stable energy levels par dikh raha hai.`});
-  else hriItems.push({pos:false, icon:'❌', text:`Protein consistently nahi li gayi. Isse cravings increase, metabolism slow, aur energy dips ho sakte hain.`});
-  if (q1.supplements >= 5) hriItems.push({pos:true, icon:'✅', text:`Supplements ${q1.supplements} din consistently li gayi hain. Iska positive impact energy levels, hormonal balance, aur recovery par dikh raha hai.`});
-  else if (q1.supplements <= 2) hriItems.push({pos:false, icon:'❌', text:`Supplements sirf ${q1.supplements} din li gayi. Incomplete supplementation se nutrient gaps ban sakte hain.`});
-  if (q1.tea >= 5) hriItems.push({pos:true, icon:'✅', text:`Evening Tea Ritual ${q1.tea} raat follow hua. Yeh nervous system ko wind-down karta hai, cortisol lower karta hai, aur better sleep ki taraf lead karta hai.`});
-  if (q1.stress >= 8) hriItems.push({pos:false, icon:'❌', text:`Stress level ${q1.stress}/10 raha. High chronic stress cortisol badhaata hai — fat storage, sleep quality, aur digestion par direct impact.`});
-  else if (q1.stress <= 4 && prev && pq1.stress > 6) hriItems.push({pos:true, icon:'✅', text:`Stress level pichhle hafte ke comparison mein behtar raha (${q1.stress}/10). Kam stress se recovery aur hormonal balance improve hote hain.`});
-  const breath = q1.breathing||0;
-  if (breath >= 5) hriItems.push({pos:true, icon:'✅', text:`Breathing before meals ${breath} baar follow hua. Yeh parasympathetic nervous system ko activate karta hai — digestion improve hoti hai aur bloating reduce hoti hai.`});
-  else if (breath <= 2) hriItems.push({pos:false, icon:'❌', text:`Breathing before meals sirf ${breath} baar hua. Bina breathwork ke digestion aur absorption issues ho sakte hain.`});
-  if (prev && q2.sleepq != null && pq2.sleepq != null) {
-    const diff = q2.sleepq - pq2.sleepq;
-    if (diff >= 2) hriItems.push({pos:true,  icon:'✅', text:`Sleep quality pichhle hafte se ${diff} points improve hui. Energy, focus, aur recovery boost hota hai.`});
-    else if (diff <= -2) hriItems.push({pos:false, icon:'❌', text:`Sleep quality pichhle hafte se ${Math.abs(diff)} points gir gayi. Poor sleep har doosre health marker ko negatively impact karta hai.`});
-  }
-  hriWrap.innerHTML = hriItems.length
-    ? `<div>${hriItems.map(item=>`<div class="hri-item ${item.pos?'positive':'negative'}"><div class="hri-icon">${item.icon}</div><div class="hri-body"><div class="hri-text">${esc(item.text)}</div></div></div>`).join('')}</div>`
-    : '<div class="empty-state">No habit data available yet. Add habits in your check-in for impact tracking.</div>';
 
   // ── BOTTLENECK ANALYSIS ─────────────────────────────
   const bnKnowledge = {
@@ -363,13 +348,13 @@ function buildRoadmap(history) {
   const wrap = document.getElementById('roadmap-wrap');
   if (!wrap) return;
   try {
-    const hs = e => Math.round(((((e.q1?.energy || 0) + (e.q1?.mood || 0) + (e.q1?.motivation || 0)) / 3) || 0) * 10) / 10;
-    const color = sc => sc >= 8 ? '#16A34A' : sc >= 6 ? '#F59E0B' : '#C1121F';
+    const hs = e => healthScore100(e, e.consistency || 0);   // /100
+    const color = sc => sc >= 80 ? '#16A34A' : sc >= 60 ? '#F59E0B' : '#C1121F';
     const nodes = history.map((e, i) => {
       const sc = hs(e);
       const isLast = i === history.length - 1;
       const prevSc = i > 0 ? hs(history[i - 1]) : null;
-      const delta = prevSc !== null ? (sc - prevSc).toFixed(1) : null;
+      const delta = prevSc !== null ? (sc - prevSc) : null;
       const deltaHtml = delta !== null
         ? `<div class="rm-delta ${+delta >= 0 ? 'up' : 'down'}">${+delta >= 0 ? '↑ +' : '↓ '}${Math.abs(delta)}</div>` : '';
       return `<div class="rm-node${isLast ? ' current' : ''}">${isLast ? '<div class="rm-you-are-here">📍 You are here</div>' : ''}<div class="rm-score-bubble" style="background:${color(sc)}">${sc || '?'}</div><div class="rm-week-lbl">Wk ${i + 1}</div>${deltaHtml}</div>`;
@@ -467,92 +452,37 @@ function buildRadar(latest, prev) {
 }
 
 /* ═══════════════════════════════════════════
-   SLIDE 3 — COST OF DELAY + SIMULATOR
+   SLIDE 3 — SIMULATOR (clean, image3)
 ═══════════════════════════════════════════ */
 function buildSlide3(latest) {
   if(!latest) return;
-  const q1   = latest.q1||{};
-  const gm   = q1.goalMonths||3;
-  const cons = latest.consistency||0;
-  const intent = q1.motivation||0;
-  const bns  = q1.bottlenecks||[];
-  const history = getHistory();
-
-  // Compute progress statement
-  const last3 = history.slice(-3).map(e=>e.consistency||0);
-  const trend  = last3.length > 1 ? last3[last3.length-1] - last3[0] : 0;
-  const intentScore   = intent > 0 ? (intent/10)*100 : cons;
-  const momentumBonus = trend > 0 ? Math.min(10, trend) : Math.max(-10, trend);
-  const compositeScore= Math.round(cons * 0.5 + intentScore * 0.3 + (cons + momentumBonus) * 0.2);
-  const progressPct   = Math.min(100, Math.max(0, compositeScore));
-
-  const ttg         = cons > 0 ? gm / (cons/100) : null;
-  const delayMonths = ttg ? ttg - gm : null;
-  const delayDays   = delayMonths ? Math.round(delayMonths * 30) : 0;
-  const delayWeeks  = Math.ceil(delayDays / 7);
-  const isAhead     = delayDays <= 0;
-
-  // Build intent banner
-  let headlineText, bodyText, factorTags;
-  if (isAhead) {
-    headlineText = `WITH YOUR CURRENT INTENT, YOU ARE ${progressPct}% CLOSER TO YOUR GOAL.`;
-    const habitHighlights = [];
-    if (q1.nightritual >= 5) habitHighlights.push('sleep ritual');
-    if (q1.walking >= 5)     habitHighlights.push('daily movement');
-    if (q1.protein === 'yes') habitHighlights.push('protein consistency');
-    if (q1.supplements >= 5) habitHighlights.push('supplementation');
-    bodyText = `Your recent consistency score of ${cons}% is working in your favour.${habitHighlights.length ? ' Your consistency around '+habitHighlights.join(', ')+' has created positive momentum.' : ''}${trend > 5 ? ' Consistency has been trending upward — this momentum is compounding.' : ''} If maintained at this level, this trajectory will accelerate progress over the coming weeks.`;
-    factorTags = habitHighlights.map(h=>`<span class="intent-factor positive">✓ ${h}</span>`).join('');
-  } else {
-    headlineText = `WITH YOUR CURRENT INTENT, YOU ARE EXPERIENCING A DELAY OF APPROXIMATELY ${delayWeeks} WEEK${delayWeeks>1?'S':''} TOWARDS YOUR HEALTH GOAL.`;
-    const delayDrivers = [];
-    if (bns.includes('Late Nights') || q1.sleepquality < 6) delayDrivers.push('inconsistent sleep');
-    if (bns.includes('Emotional Eating')) delayDrivers.push('emotional eating episodes');
-    if (q1.protein !== 'yes')  delayDrivers.push('insufficient protein');
-    if (q1.stress > 7)         delayDrivers.push('high stress');
-    if (q1.supplements < 4)    delayDrivers.push('missed supplements');
-    bodyText = `At ${cons}% consistency, your goal timeline extends beyond the planned ${gm} months.${delayDrivers.length ? ' Key contributing factors include: '+delayDrivers.join(', ')+'.' : ''} Improving consistency to 70%+ and addressing your top bottleneck this week will create a meaningful shift in your trajectory.`;
-    factorTags = delayDrivers.map(d=>`<span class="intent-factor">⚠ ${d}</span>`).join('');
+  const cons = latest.consistency || 0;
+  // Anchor the slider range to the current consistency, in 5% steps up to 100%.
+  const slider = document.getElementById('sim-slider');
+  if (slider) {
+    const floor = Math.min(95, Math.max(5, Math.round(cons / 5) * 5));
+    slider.min = floor;
+    slider.step = 5;
+    let def = Math.min(100, (Math.round(cons / 5) * 5) + 15);
+    if (def < floor) def = floor;
+    slider.value = def;
   }
-
-  // Dramatic visual display
-  const delayDisplay  = isAhead ? `+${progressPct}%` : `${delayWeeks}W`;
-  const delayUnit     = isAhead ? 'AHEAD OF GOAL' : 'DELAY';
-
-  document.getElementById('intent-progress-statement').innerHTML = `
-    <div class="intent-banner${isAhead?' is-ahead':''}">
-      <div style="text-align:center;flex-shrink:0;min-width:130px">
-        <div class="intent-delay-big${isAhead?' ahead':''}">${delayDisplay}</div>
-        <div class="intent-delay-unit${isAhead?' ahead':''}">${delayUnit}</div>
-        <div style="font-family:var(--font-mono);font-size:9px;color:rgba(247,245,240,0.25);margin-top:8px">${cons}% CONSISTENCY</div>
-      </div>
-      <div class="intent-content">
-        <div class="intent-eyebrow">Your Progress Statement · Week</div>
-        <div class="intent-headline">${esc(headlineText)}</div>
-        <div class="intent-body">${esc(bodyText)}</div>
-        ${factorTags ? `<div class="intent-factors">${factorTags}</div>` : ''}
-      </div>
-    </div>`;
-
-  // Cost of delay card
-  const nars=[];
-  if(q1.sleepquality<6) nars.push('Poor sleep is costing you energy, focus, and fat burning every night.');
-  if(q1.stress>7) nars.push('High stress is raising cortisol, stalling fat loss, and affecting every other health marker.');
-  if(q1.protein!=='yes') nars.push('Missing protein means more cravings, slower metabolism, and muscle loss over time.');
-  if(bns.includes('Emotional Eating')) nars.push('Emotional eating is undoing days of good choices in single episodes.');
-  if(!nars.length) nars.push(`At ${cons}% consistency, you are ${delayDays>0?delayDays+' days behind your goal':'on track'}. Keep pushing!`);
-  document.getElementById('cost-narrative').textContent=nars.join(' ');
-
-  const reasons=[];
-  if(bns.includes('Late Nights')||q1.sleepquality<6) reasons.push({label:'Late nights / poor sleep',days:'+2–3 days'});
-  if(bns.includes('Emotional Eating')) reasons.push({label:'Emotional eating (3+ episodes)',days:'+2 days'});
-  if(q1.protein!=='yes') reasons.push({label:'Inconsistent protein',days:'+1–2 days'});
-  if(q1.stress>7) reasons.push({label:'High stress level',days:'+1–2 days'});
-  if(q1.supplements<4) reasons.push({label:'Missed supplements',days:'+1 day'});
-  document.getElementById('cost-breakdown-list').innerHTML=reasons.map(r=>`<div class="cost-item"><div style="font-size:12px;color:var(--ink2)">• ${r.label}</div><div class="cost-item-days">${r.days}</div></div>`).join('');
-
+  buildSimTicks();
   buildHabitsToImprove(latest);
   updateSim();
+}
+
+// Render the tick-mark scale (e.g. 55% · 60% … 100%) above the simulator slider.
+function buildSimTicks() {
+  const wrap = document.getElementById('sim2-ticks');
+  const slider = document.getElementById('sim-slider');
+  if (!wrap || !slider) return;
+  const min = +slider.min || 10;
+  const ticks = [];
+  for (let v = min; v <= 100; v += 5) ticks.push(v);
+  wrap.innerHTML = ticks.map((v, i) =>
+    `<span class="sim2-tick${i === 0 ? ' cur' : ''}">${v}%</span>`
+  ).join('');
 }
 
 /* ═══════════════════════════════════════════

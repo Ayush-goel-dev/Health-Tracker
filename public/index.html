@@ -288,7 +288,7 @@
       <div style="width:34px;height:34px;border-radius:10px;background:var(--purple-light);border:1.5px solid var(--purple-mid);display:flex;align-items:center;justify-content:center;font-size:16px">📊</div>
       <div>
         <div style="font-size:13px;font-weight:700;color:var(--ink2)">Consistency — Habit → Result Impact</div>
-        <div style="font-size:10px;color:var(--ink4);margin-top:1px">Track your inner state (1–10, fill what applies)</div>
+        <div style="font-size:10px;color:var(--ink4);margin-top:1px">Track your inner state — rate each 1–10, where <strong>1 = not good</strong> and <strong>10 = the highest</strong>. Fill what applies.</div>
       </div>
     </div>
     <div class="form-cols-4">
@@ -343,51 +343,52 @@
       <button class="btn btn-ghost dash-pdf-btn" onclick="downloadDashboardPDF()">⤓&nbsp; Download PDF</button>
     </div>
 
-    <!-- WEEKLY REPORT HERO (v5) -->
-    <div class="report-hero">
-      <div class="rh-top">
-        <div>
-          <div class="rh-eyebrow">Weekly Progress Report</div>
-          <div class="rh-title">Hey <em id="rh-name">there</em>,<br>here's how your week went.</div>
-          <div class="rh-sub" id="rh-sub">Your complete weekly picture — scores, habits, body &amp; wins.</div>
-        </div>
-        <div class="hero-scores">
-          <div class="hero-score-ring-wrap">
-            <svg class="hero-score-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
-              <circle id="hero-ring-health" cx="50" cy="50" r="40" fill="none" stroke="url(#hg1)" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" transform="rotate(-90 50 50)"/>
-              <defs><linearGradient id="hg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#c9bcff"/><stop offset="100%" stop-color="#7c6ddb"/></linearGradient></defs>
-              <text x="50" y="47" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-size="20" fill="#f7f5f0" id="hero-score-val">—</text>
-              <text x="50" y="60" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(247,245,240,0.4)">/10</text>
-            </svg>
-            <div class="hero-score-label">Health Score</div>
-          </div>
-          <div class="hero-score-ring-wrap">
-            <svg class="hero-score-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
-              <circle id="hero-ring-cons" cx="50" cy="50" r="40" fill="none" stroke="url(#hg2)" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" transform="rotate(-90 50 50)"/>
-              <defs><linearGradient id="hg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7fd9a0"/><stop offset="100%" stop-color="#2d7a4f"/></linearGradient></defs>
-              <text x="50" y="47" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-size="18" fill="#f7f5f0" id="hero-cons-val">—</text>
-              <text x="50" y="60" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="8" fill="rgba(247,245,240,0.4)">%</text>
-            </svg>
-            <div class="hero-score-label">Consistency</div>
-          </div>
+    <!-- WEEKLY REPORT HERO — Health Intelligence Report (image7, light) -->
+    <div class="report-hero-lite">
+      <div class="rhl-greet">
+        <svg class="rhl-logo" viewBox="0 0 60 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <polygon points="6,6 20,6 33,42 19,42" fill="#b8922a"/>
+          <polygon points="24,6 38,6 51,42 37,42" fill="#b8922a"/>
+        </svg>
+        <div class="rhl-hello">Hey <span id="rh-name">there</span>,</div>
+        <div class="rhl-sub">Your Health Intelligence Report is here</div>
+        <div class="rhl-pills">
+          <div class="rhl-pill"><span class="rhl-pill-ico">📅</span><span id="rh-week">Week —</span></div>
+          <div class="rhl-pill"><span class="rhl-pill-ico">📆</span><span id="rh-date">—</span></div>
         </div>
       </div>
-      <div class="rh-badges">
-        <div class="rh-badge"><span class="rh-badge-icon">📅</span><div><div class="rh-badge-val" id="rh-week">Wk —</div><div class="rh-badge-lbl">Current Week</div></div></div>
-        <div class="rh-badge"><span class="rh-badge-icon">📈</span><div><div class="rh-badge-val" id="rh-trend">—</div><div class="rh-badge-lbl">vs Last Week</div></div></div>
-        <div class="rh-badge"><span class="rh-badge-icon">📆</span><div><div class="rh-badge-val" id="rh-date">—</div><div class="rh-badge-lbl">Check-in Date</div></div></div>
+      <div class="rhl-ring-col">
+        <div class="rhl-ring-label">Health Score</div>
+        <div class="rhl-ring-wrap">
+          <svg class="rhl-ring-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#e9ecf1" stroke-width="7"/>
+            <circle id="hero-ring-health" cx="50" cy="50" r="42" fill="none" stroke="url(#rhg-health)" stroke-width="7" stroke-dasharray="263.9" stroke-dashoffset="263.9" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+            <defs><linearGradient id="rhg-health" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7fd9a0"/><stop offset="100%" stop-color="#15A34A"/></linearGradient></defs>
+            <text x="50" y="53" text-anchor="middle" class="rhl-ring-num" id="hero-score-val">—</text>
+            <text x="50" y="68" text-anchor="middle" class="rhl-ring-unit">/100</text>
+          </svg>
+        </div>
+        <div class="rhl-ring-delta" id="rh-trend">—</div>
+      </div>
+      <div class="rhl-ring-col">
+        <div class="rhl-ring-label">Consistency</div>
+        <div class="rhl-ring-wrap">
+          <svg class="rhl-ring-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#e9ecf1" stroke-width="7"/>
+            <circle id="hero-ring-cons" cx="50" cy="50" r="42" fill="none" stroke="url(#rhg-cons)" stroke-width="7" stroke-dasharray="263.9" stroke-dashoffset="263.9" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+            <defs><linearGradient id="rhg-cons" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e8c37a"/><stop offset="100%" stop-color="#c99a2e"/></linearGradient></defs>
+            <text x="50" y="56" text-anchor="middle" class="rhl-ring-num"><tspan id="hero-cons-val">—</tspan><tspan class="rhl-ring-pct" dy="-7">%</tspan></text>
+          </svg>
+        </div>
+        <div class="rhl-ring-streak" id="rh-streak">—</div>
       </div>
     </div>
 
-    <!-- OVERVIEW STRIP -->
-    <div class="overview-strip" id="overview-strip">
-      <div class="ov-item"><div class="ov-val" id="ov-sessions">—</div><div class="ov-lbl">Total Check-ins</div></div>
-      <div class="ov-item"><div class="ov-val" id="ov-avg">—</div><div class="ov-lbl">Avg Consistency</div></div>
-      <div class="ov-item"><div class="ov-val" id="ov-best">—</div><div class="ov-lbl">Best Week</div></div>
-      <div class="ov-item"><div class="ov-val" id="ov-streak">—</div><div class="ov-lbl">Total Weeks</div></div>
+    <!-- THIS WEEK'S WINS CELEBRATION (moved up, image5) -->
+    <div class="card" id="wins-celebration-card" style="display:none">
+      <div id="wins-celebration"></div>
     </div>
+
     <div class="program-bar-wrap" id="program-bar-wrap" style="display:none">
       <div class="program-bar-track"><div class="program-bar-fill" id="program-bar-fill" style="width:0%"></div></div>
       <div class="program-bar-label" id="program-bar-label"></div>
@@ -399,32 +400,33 @@
       <div class="roadmap-wrap" id="roadmap-wrap"><div class="empty-state">Complete a check-in to see your journey.</div></div>
     </div>
 
-    <!-- CONSISTENCY SCORE — ALL WEEKS (v5) -->
+    <!-- CONSISTENCY OVER TIME + CURRENT HEALTH PROFILE (merged, image6) -->
     <div class="card card-fancy">
-      <div class="card-label">Consistency Score — All Weeks</div>
-      <div class="con-bar-track" style="margin-bottom:6px"><div class="con-bar-fill" id="con-bar" style="width:0%"></div></div>
-      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:16px">
-        <span style="font-family:var(--font-serif);font-size:42px;font-weight:400;color:var(--green)" id="con-pct">—</span>
-        <span style="font-size:11px;color:var(--ink4);font-family:var(--font-mono)">/ 100 this week</span>
-        <div class="con-sub" id="con-custom-note" style="margin-left:auto"></div>
-      </div>
-      <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
-    </div>
-
-    <!-- INNER STATE RADAR (v5) -->
-    <div class="card card-fancy">
-      <div class="radar-layout">
-        <div class="radar-main">
-          <div class="card-label">Inner State Radar</div>
-          <div class="chart-wrap-radar"><canvas id="radarChart"></canvas></div>
+      <div class="cr-merge">
+        <div class="cr-col cr-left">
+          <div class="cr-head"><span class="cr-head-ico">📈</span><span class="card-label" style="margin-bottom:0">Consistency Over Time</span></div>
+          <div class="cr-big-wrap"><span class="cr-big" id="con-pct">—</span><span class="cr-big-unit">/ 100</span></div>
+          <div class="cr-big-lbl">Consistency Score</div>
+          <div class="cr-delta" id="con-delta"></div>
+          <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+          <div class="con-sub" id="con-custom-note" style="margin-top:10px"></div>
+          <div class="con-bar-track" style="display:none"><div class="con-bar-fill" id="con-bar" style="width:0%"></div></div>
         </div>
-        <div class="radar-legend-box">
-          <div class="radar-legend-title">How to read this</div>
-          <div class="radar-legend-item"><span class="radar-dot" style="background:var(--brand)"></span>This week's inner state</div>
-          <div class="radar-legend-item"><span class="radar-dot" style="background:var(--green);opacity:.75"></span>Last week (comparison)</div>
-          <div class="radar-legend-divider"></div>
-          <div class="radar-legend-what"><b>What's measured:</b> 8 markers rated 1–10 in your check-in — Sleep, Stress, Energy, Digestion, Clarity, Pain, Cravings, Movement. <em>Larger shape = better overall state.</em></div>
-          <div class="radar-score-summary" id="radar-score-summary"></div>
+        <div class="cr-col cr-right">
+          <div class="cr-head"><span class="cr-head-ico">🧭</span><span class="card-label" style="margin-bottom:0">Current Health Profile</span></div>
+          <div class="chart-wrap-radar"><canvas id="radarChart"></canvas></div>
+          <div class="cr-radar-legend">
+            <span class="cr-leg-item"><span class="radar-dot" style="background:var(--brand)"></span>This Week</span>
+            <span class="cr-leg-item"><span class="radar-dot" style="background:var(--green)"></span>Last Week</span>
+          </div>
+          <div class="radar-legend-box">
+            <div class="radar-legend-title">How to read this</div>
+            <div class="radar-legend-item"><span class="radar-dot" style="background:var(--brand)"></span>This Report</div>
+            <div class="radar-legend-item"><span class="radar-dot" style="background:var(--green)"></span>Last report comparison</div>
+            <div class="radar-legend-divider"></div>
+            <div class="radar-legend-what">A larger shape indicates better overall health and balance, while a smaller shape highlights areas that need more attention and improvement.</div>
+            <div class="radar-score-summary" id="radar-score-summary"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -443,17 +445,6 @@
         <div class="hm-card-body" id="hm-card-body"></div>
         <div id="hm-card-badge-wrap"></div>
       </div>
-    </div>
-
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-        <div style="width:34px;height:34px;border-radius:10px;background:var(--purple-light);border:1.5px solid var(--purple-mid);display:flex;align-items:center;justify-content:center;font-size:16px">📈</div>
-        <div>
-          <div class="card-label" style="margin-bottom:0">Consistency — Habit → Result Impact</div>
-          <div style="font-size:11px;color:var(--ink3);margin-top:1px">How your behaviour directly shaped your outcomes this week</div>
-        </div>
-      </div>
-      <div id="habit-result-impact" style="margin-top:10px"><div class="empty-state">Complete a check-in to see how your habits affected your results.</div></div>
     </div>
 
     <!-- BODY MEASUREMENTS (v5) -->
@@ -485,84 +476,75 @@
 
     <div class="quote-bar">"Small daily choices. Big life changes." 🌿</div>
     <div class="btn-row"><button class="btn btn-primary" onclick="goTo('q1')" style="font-size:12px">+ New Week Check-In</button></div>
-  </div>
-
-  <hr class="section-divider">
-
-  <!-- SLIDE 2: PROGRESS TRACKER -->
-  <div class="progress-slide" id="pslide-2">
-    <div class="dark-card">
-      <div class="dash-header">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="dash-badge" style="background:rgba(34,197,94,0.2);color:#4ade80;border:2px solid rgba(34,197,94,0.3)">2</div>
-          <div><div class="dash-title">Progress &amp; Changes Tracker</div><div class="dash-sub">Track your transformation over time.</div></div>
-        </div>
-        <div class="week-pill" id="p2-week">This Week</div>
-      </div>
-    </div>
-
-    <!-- THIS WEEK'S WINS CELEBRATION (v5) -->
-    <div class="card" id="wins-celebration-card" style="display:none">
-      <div id="wins-celebration"></div>
-    </div>
-
-    <div class="card">
-      <div class="lit-header">
-        <span class="lit-dash"></span>
-        <span class="lit-title">Life Improvements Timeline</span>
-      </div>
-      <div class="fayde-timeline" id="fayde-timeline-all">
-        <div class="empty-state">No wins logged yet. Complete a check-in to see your wins here.</div>
-      </div>
-    </div>
-
-    <div class="quote-bar">"You don't chase results. You build systems." ⭐</div>
     <canvas class="confetti-canvas" id="confetti-canvas" style="display:none"></canvas>
   </div>
 
   <hr class="section-divider">
 
-  <!-- SLIDE 3: REAL COST OF DELAY + SIMULATOR -->
+  <!-- SLIDE 3: SIMULATOR -->
   <div class="progress-slide" id="pslide-3">
 
-    <!-- INTENT PROGRESS — dramatic new design -->
-    <div class="dark-card" style="border-color:rgba(229,9,20,0.25)">
-      <div class="dash-header">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="dash-badge" style="background:rgba(229,9,20,0.18);color:#f87171;border:2px solid rgba(229,9,20,0.3)">⚡</div>
-          <div><div class="dash-title">Real Cost of Delay</div><div class="dash-sub">Based on your current intent, consistency &amp; behaviour trends.</div></div>
+    <!-- SIMULATOR — clean two-column (image3) -->
+    <div class="sim2-grid">
+      <!-- LEFT: current status -->
+      <div class="card sim2-status">
+        <div class="sim2-eyebrow">Your Current Status</div>
+        <div class="sim2-status-lbl">Consistency Score</div>
+        <div class="sim2-status-big"><span id="sim2-cur-pct">—</span><span class="sim2-pctsign">%</span></div>
+        <div class="sim2-status-bar"><div class="sim2-status-fill" id="sim2-cur-fill" style="width:0%"></div></div>
+        <div class="sim2-status-scale"><span>0%</span><span>100%</span></div>
+        <div class="sim2-delay-box">
+          <div class="sim2-delay-ico">🕐</div>
+          <div>
+            <div class="sim2-delay-lbl">Delay Towards Your Goal</div>
+            <div class="sim2-delay-big" id="sim2-cur-delay">—</div>
+            <div class="sim2-delay-sub" id="sim2-cur-delay-sub">Complete a check-in to see your delay.</div>
+          </div>
         </div>
       </div>
-      <div id="intent-progress-statement">
-        <div style="font-family:var(--font-serif);font-size:13px;color:rgba(247,245,240,0.5);text-align:center;padding:24px">Complete your weekly check-in to see your progress statement.</div>
-      </div>
-    </div>
 
-    <!-- SIMULATOR — exact same functioning as reference -->
-    <div class="two-col">
-      <div class="card">
-        <div class="card-label">Simulator — If My Consistency Becomes…</div>
-        <div class="sim-pct" id="sim-pct-display">70%</div>
-        <div class="sim-hint">Drag to explore your trajectory</div>
-        <div class="range-wrap">
+      <!-- RIGHT: simulator -->
+      <div class="card sim2-main">
+        <div class="sim2-eyebrow">Simulator</div>
+        <div class="sim2-title">Improve Consistency, Save Time</div>
+        <div class="sim2-sub">See how increasing your consistency can get you back on track.</div>
+        <div class="sim2-slider-lbl">If you improve your consistency to:</div>
+        <div class="sim2-ticks" id="sim2-ticks"></div>
+        <div class="range-wrap sim2-range">
           <div class="range-track"><div class="range-fill" id="range-fill-el" style="width:70%"></div></div>
-          <input type="range" class="sim-slider" id="sim-slider" min="10" max="100" value="70">
+          <input type="range" class="sim-slider" id="sim-slider" min="10" max="100" step="5" value="70">
         </div>
-        <div class="sim-grid">
-          <div class="sim-box"><div class="sim-box-val" id="sim-cur-pct">—</div><div class="sim-box-lbl">Current Consistency</div></div>
-          <div class="sim-box" style="background:var(--brand-light)"><div class="sim-box-val" style="color:var(--brand)" id="sim-pct-box">70%</div><div class="sim-box-lbl">Simulated Consistency</div></div>
-          <div class="sim-box"><div class="sim-box-val" id="sim-cur-months">—</div><div class="sim-box-lbl">Months at Current %</div></div>
-          <div class="sim-box" style="background:var(--brand-light)"><div class="sim-box-val" style="color:var(--brand)" id="sim-time">—</div><div class="sim-box-lbl">Months at Simulated %</div></div>
+        <div class="sim2-cards">
+          <div class="sim2-subcard save">
+            <div class="sim2-subcard-ico save">✓</div>
+            <div>
+              <div class="sim2-subcard-lbl save">You Will Save</div>
+              <div class="sim2-subcard-big save" id="sim2-save">—</div>
+              <div class="sim2-subcard-sub" id="sim2-save-sub">Drag the slider to explore.</div>
+            </div>
+          </div>
+          <div class="sim2-subcard getback">
+            <div class="sim2-subcard-ico getback">🕐</div>
+            <div>
+              <div class="sim2-subcard-lbl getback">Time You Get Back</div>
+              <div class="sim2-subcard-big getback" id="sim2-getback">—</div>
+              <div class="sim2-subcard-sub" id="sim2-getback-sub">Drag the slider to explore.</div>
+            </div>
+          </div>
         </div>
-        <div class="sim-insight" id="sim-insight">Enter your check-in and goal duration to see the simulation.</div>
-      </div>
-
-      <div class="card" style="border-color:rgba(229,9,20,0.15)">
-        <div class="card-label">What You're Risking Every Week</div>
-        <div style="background:var(--red-light);border:1px solid rgba(229,9,20,0.1);border-radius:var(--r);padding:14px;margin-bottom:12px;font-size:12px;color:var(--ink2);line-height:1.8" id="cost-narrative">
-          Complete your weekly check-in to see a personalized cost analysis.
+        <div class="sim2-compare">
+          <div class="sim2-compare-title">Delay Comparison</div>
+          <div class="sim2-compare-row">
+            <div class="sim2-compare-name cur" id="sim2-cmp-cur-name">Current</div>
+            <div class="sim2-compare-bar-wrap"><div class="sim2-compare-bar cur" id="sim2-cmp-cur-bar" style="width:0%"></div><span class="sim2-compare-val" id="sim2-cmp-cur-val">—</span></div>
+          </div>
+          <div class="sim2-compare-row">
+            <div class="sim2-compare-name sim" id="sim2-cmp-sim-name">At target</div>
+            <div class="sim2-compare-bar-wrap"><div class="sim2-compare-bar sim" id="sim2-cmp-sim-bar" style="width:0%"></div><span class="sim2-compare-val" id="sim2-cmp-sim-val">—</span></div>
+          </div>
+          <div class="sim2-compare-goal">⟂ Your Original Goal Date</div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px" id="cost-breakdown-list"></div>
+        <div class="sim-insight" id="sim-insight" style="margin-top:14px"></div>
       </div>
     </div>
 

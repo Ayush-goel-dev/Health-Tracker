@@ -2,40 +2,7 @@
    SLIDE 2 — PROGRESS TRACKER
 ═══════════════════════════════════════════ */
 function buildSlide2(latest,prev,history) {
-  const user2 = getUser();
-  const totalWeeks2 = user2?.weeks || 12;
-  const pill2 = document.getElementById('p2-week');
-  if (pill2) pill2.textContent = `Week ${Math.min(history.length,totalWeeks2)} of ${totalWeeks2}`;
-  if (!latest) {
-    const tl=document.getElementById('fayde-timeline-all');
-    if(tl) tl.innerHTML='<div class="empty-state">No wins logged yet. Complete a check-in to see your wins here.</div>';
-    return;
-  }
-  const q2=latest.q2||{}; const pq2=prev?.q2||{};
-
-  buildWinsCelebration(latest);
-
-  // Life Improvements Timeline
-  const timelineEl = document.getElementById('fayde-timeline-all');
-  if (!history.length) {
-    timelineEl.innerHTML = '<div class="empty-state">No wins logged yet. Complete a check-in to see your wins here.</div>';
-  } else {
-    const viewingIdx = typeof selectedWeekIndex !== 'undefined' ? selectedWeekIndex : null;
-    timelineEl.innerHTML = history.map((entry, idx) => {
-      const wkNum = idx + 1;
-      const isLatest = idx === history.length - 1;
-      const isViewing = viewingIdx === idx;
-      const q3w = entry.q3 || {};
-      const wins = [q3w.winBiggest, q3w.winFamily, q3w.winWork].filter(Boolean);
-      const winsHtml = wins.length
-        ? wins.map(w=>`<div class="fayde-win-item"><span class="fayde-check">✓</span><span>${esc(w)}</span></div>`).join('')
-        : `<div class="fayde-empty-line"><span class="fayde-check">✓</span><span>No wins logged</span></div>`;
-      return `<div class="fayde-week-entry${isLatest?' latest':''}${isViewing?' viewing':''}" onclick="viewWeek(${idx})" title="View Week ${wkNum} data" role="button" tabindex="0">
-        <div class="fayde-week-label">Week ${wkNum} ›</div>
-        <div class="fayde-week-wins">${winsHtml}</div>
-      </div>`;
-    }).join('');
-  }
+  if (latest) buildWinsCelebration(latest);
 
   // Consistency chart
   if(lineChartInst){try{lineChartInst.destroy();}catch(e){} lineChartInst=null;}
@@ -82,26 +49,69 @@ function buildWinsCelebration(latest) {
    SIMULATOR — current % vs simulated % (v5 grid)
 ═══════════════════════════════════════════ */
 function updateSim() {
-  const sv = +document.getElementById('sim-slider').value;
-  document.getElementById('sim-pct-display').textContent = sv + '%';
-  document.getElementById('range-fill-el').style.width = sv + '%';
-  const box = document.getElementById('sim-pct-box');
-  if (box) box.textContent = sv + '%';
+  const slider = document.getElementById('sim-slider');
+  if (!slider) return;
+  const sv  = +slider.value;
+  const min = +slider.min || 10;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   const history = getHistory();
   const latest = history.length ? history[history.length - 1] : null;
-  const gm = latest?.q1?.goalMonths || 3;
-  const curCons = latest?.consistency || 0;
-  const curTime = curCons > 0 ? gm / (curCons / 100) : null;
-  const simTime = sv > 0 ? gm / (sv / 100) : null;
-  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  set('sim-cur-pct', curCons ? curCons + '%' : '—');
-  set('sim-cur-months', curTime ? curTime.toFixed(1) + ' mo' : '—');
-  set('sim-time', simTime ? simTime.toFixed(1) + ' mo' : '∞');
+  const gm  = latest?.q1?.goalMonths || 3;
+  const cur = latest?.consistency || 0;
+
+  // Weeks behind the goal timeline at a given consistency %.
+  const delayWeeks = c => {
+    if (c <= 0) return null;
+    const extraMonths = gm / (c / 100) - gm;
+    return Math.max(0, Math.ceil(extraMonths * 30 / 7));
+  };
+  const wk = n => `${n} Week${n === 1 ? '' : 's'}`;
+  const curDelay = delayWeeks(cur);
+  const simDelay = delayWeeks(sv);
+  const saved = (curDelay != null && simDelay != null) ? Math.max(0, curDelay - simDelay) : 0;
+
+  // Slider fill (relative to its dynamic min).
+  const fill = document.getElementById('range-fill-el');
+  if (fill) fill.style.width = (min < 100 ? ((sv - min) / (100 - min)) * 100 : 100) + '%';
+
+  // ── LEFT: current status ──
+  set('sim2-cur-pct', cur || '—');
+  const cf = document.getElementById('sim2-cur-fill');
+  if (cf) cf.style.width = cur + '%';
+  if (curDelay == null) {
+    set('sim2-cur-delay', '—');
+    set('sim2-cur-delay-sub', 'Complete a check-in to see your delay.');
+  } else if (curDelay <= 0) {
+    set('sim2-cur-delay', 'On track');
+    set('sim2-cur-delay-sub', 'You are on track with your goal timeline. 🎉');
+  } else {
+    set('sim2-cur-delay', wk(curDelay));
+    set('sim2-cur-delay-sub', `You are currently ${wk(curDelay).toLowerCase()} behind your goal timeline.`);
+  }
+
+  // ── RIGHT: you-will-save + time-you-get-back ──
+  set('sim2-save', simDelay == null ? '—' : wk(simDelay));
+  set('sim2-save-sub', simDelay == null ? 'Drag the slider to explore.' : `At ${sv}% you will be only ${wk(simDelay).toLowerCase()} behind your goal timeline.`);
+  set('sim2-getback', wk(saved));
+  set('sim2-getback-sub', `By improving to ${sv}% consistency, you save ${wk(saved).toLowerCase()}.`);
+
+  // ── Delay comparison bars ──
+  const maxDelay = Math.max(curDelay || 0, simDelay || 0, 1);
+  const curBar = document.getElementById('sim2-cmp-cur-bar');
+  const simBar = document.getElementById('sim2-cmp-sim-bar');
+  if (curBar) curBar.style.width = ((curDelay || 0) / maxDelay) * 100 + '%';
+  if (simBar) simBar.style.width = ((simDelay || 0) / maxDelay) * 100 + '%';
+  set('sim2-cmp-cur-name', `Current (${cur}%)`);
+  set('sim2-cmp-sim-name', `At ${sv}% Consistency`);
+  set('sim2-cmp-cur-val', curDelay == null ? '—' : wk(curDelay));
+  set('sim2-cmp-sim-val', simDelay == null ? '—' : wk(simDelay));
+
+  // ── Insight line ──
   const insEl = document.getElementById('sim-insight');
-  if (insEl && simTime) {
-    if (sv >= 90) insEl.textContent = `🔥 At ${sv}% consistency, you hit your goal in ${simTime.toFixed(1)} months — ${Math.abs((simTime - gm).toFixed(1))} months ${simTime < gm ? 'ahead of' : 'behind'} schedule.`;
-    else if (sv >= 70) insEl.textContent = `💪 At ${sv}%, you reach your goal in ${simTime.toFixed(1)} months. Good trajectory — push harder for faster results.`;
-    else if (sv >= 50) insEl.textContent = `⚠️ At ${sv}%, your goal takes ${simTime.toFixed(1)} months — ${(simTime - gm).toFixed(1)} months longer than planned.`;
-    else insEl.textContent = `🚨 At ${sv}%, your goal could take ${simTime.toFixed(1)} months. Small daily improvements matter enormously.`;
+  if (insEl) {
+    if (simDelay == null) insEl.textContent = 'Enter your check-in and goal duration to see the simulation.';
+    else if (saved > 0)   insEl.textContent = `🔥 Reaching ${sv}% consistency gets you back ${wk(saved).toLowerCase()} toward your goal.`;
+    else if (curDelay === 0) insEl.textContent = `💪 You are already on track — keep this consistency going.`;
+    else insEl.textContent = `Drag the slider up to see how much time you can save.`;
   }
 }
