@@ -180,16 +180,15 @@ function saveQ1() {
   if (!getScaleVal('scale-mood')) return showFieldError('q1-err', 'Please rate your Mood (1–10).', document.getElementById('scale-mood'));
   if (!getScaleVal('scale-motivation')) return showFieldError('q1-err', 'Please rate your Intent (1–10).', document.getElementById('scale-motivation'));
   if (!validateNumbers('q1-err', [
-    ['h-breathing', 'Breathing before meals', 0, 21],
-    ['h-walking', 'Walked after meals', 0, 21],
-    ['h-screentime', 'Screen-free 1hr before bed', 0, 7],
-    ['h-tea', 'Evening tea', 0, 7],
-    ['h-nightritual', 'Night healing ritual', 0, 7],
-    ['h-supplements', 'Supplements consistently', 0, 7],
-    ['h-sleepquality', 'Sleep quality', 1, 10],
-    ['h-stress', 'Stress level', 1, 10],
+    ['h-breathing', 'Breathing before meals', 0, 30],
+    ['h-walking', 'Walking After meals', 0, 30],
+    ['h-sunbath', 'Sunbath', 0, 7],
+    ['h-supplements', 'Supplements', 0, 7],
+    ['h-movement', 'Movement', 0, 7],
+    ['h-sukoontea', 'Sukoon Tea', 0, 7],
+    ['h-viraamtea', 'Viraam Tea', 0, 7],
+    ['h-nightritual', 'Night healing rituals', 0, 7],
   ])) return;
-  if (!ynState.protein) return showFieldError('q1-err', 'Please select Yes or No for "Protein in most meals".', document.getElementById('yn-protein-yes'));
 
   if (!currentEntry) currentEntry = {};
   const defs = getCustomDefs();
@@ -209,13 +208,12 @@ function saveQ1() {
     energy:getScaleVal('scale-energy'), mood:getScaleVal('scale-mood'), motivation:getScaleVal('scale-motivation'),
     breathing:+document.getElementById('h-breathing').value||0,
     walking:+document.getElementById('h-walking').value||0,
-    protein:ynState.protein||'',
-    screentime:+document.getElementById('h-screentime').value||0,
-    tea:+document.getElementById('h-tea').value||0,
-    nightritual:+document.getElementById('h-nightritual').value||0,
+    sunbath:+document.getElementById('h-sunbath').value||0,
     supplements:+document.getElementById('h-supplements').value||0,
-    sleepquality:+document.getElementById('h-sleepquality').value||0,
-    stress:+document.getElementById('h-stress').value||0,
+    movement:+document.getElementById('h-movement').value||0,
+    sukoonTea:+document.getElementById('h-sukoontea').value||0,
+    viraamTea:+document.getElementById('h-viraamtea').value||0,
+    nightritual:+document.getElementById('h-nightritual').value||0,
     bottlenecks:[...selectedBottlenecks],
     otherTags:[...selectedOtherChips],
     notes:document.getElementById('q1-notes').value.trim(),
@@ -284,13 +282,17 @@ async function saveQ2AndGoProgress() {
   };
 
   const q1 = currentEntry.q1 || {};
+  // Sleep now comes from the Q2 inner-state grid (the habit card no longer has a
+  // Sleep slider). The two teas combine into one "tea" ritual term.
+  const sleepVal = currentEntry.q2 && currentEntry.q2.sleepq > 0 ? currentEntry.q2.sleepq : 0;
+  const teaVal = Math.min(7, (q1.sukoonTea || 0) + (q1.viraamTea || 0));
 
-  const food = Math.round(((q1.breathing / 21 + q1.walking / 21 + (q1.protein === 'yes' ? 1 : 0)) / 3) * 100);
-  const movement = Math.round((q1.walking / 21) * 100);
-  const recovery = Math.round(((q1.nightritual / 7 + (q1.sleepquality > 0 ? q1.sleepquality / 10 : 0)) / 2) * 100);
-  const sleep = Math.round(q1.sleepquality > 0 ? (q1.sleepquality / 10) * 100 : 0);
-  const rituals = Math.round(((q1.tea / 7 + q1.nightritual / 7) / 2) * 100);
-  const supplements = Math.round((q1.supplements / 7) * 100);
+  const food = Math.round((((q1.breathing || 0) / 30 + (q1.walking || 0) / 30 + (q1.sunbath || 0) / 7) / 3) * 100);
+  const movement = Math.round(((q1.movement || 0) / 7) * 100);
+  const recovery = Math.round((((q1.nightritual || 0) / 7 + (sleepVal > 0 ? sleepVal / 10 : 0)) / 2) * 100);
+  const sleep = Math.round(sleepVal > 0 ? (sleepVal / 10) * 100 : 0);
+  const rituals = Math.round(((teaVal / 7 + (q1.nightritual || 0) / 7) / 2) * 100);
+  const supplements = Math.round(((q1.supplements || 0) / 7) * 100);
 
   const filledCustoms = [
     ...(q1.customHabits || []),

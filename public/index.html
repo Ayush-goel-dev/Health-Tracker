@@ -185,15 +185,15 @@
     <div class="card-label">Overall Feelings (avg for the week)</div>
     <div class="feelings-grid-3">
       <div class="feeling-box">
-        <div class="feeling-box-top"><div class="feeling-icon">🧭</div><div><div class="feeling-label">Health Awareness</div><div class="feeling-sub">1 (Low) — 10 (High)</div></div></div>
+        <div class="feeling-box-top"><div class="feeling-icon">🧭</div><div><div class="feeling-label">Health Awareness</div><div class="feeling-sub">1 = Poor · 10 = Best</div></div></div>
         <div class="scale-group" id="scale-energy"></div>
       </div>
       <div class="feeling-box">
-        <div class="feeling-box-top"><div class="feeling-icon">😊</div><div><div class="feeling-label">Mood</div><div class="feeling-sub">1 (Low) — 10 (High)</div></div></div>
+        <div class="feeling-box-top"><div class="feeling-icon">😊</div><div><div class="feeling-label">Mood</div><div class="feeling-sub">1 = Poor · 10 = Best</div></div></div>
         <div class="scale-group" id="scale-mood"></div>
       </div>
       <div class="feeling-box">
-        <div class="feeling-box-top"><div class="feeling-icon">🎯</div><div><div class="feeling-label">Intent</div><div class="feeling-sub">1 (Low) — 10 (High)</div></div></div>
+        <div class="feeling-box-top"><div class="feeling-icon">🎯</div><div><div class="feeling-label">Intent</div><div class="feeling-sub">1 = Poor · 10 = Best</div></div></div>
         <div class="scale-group" id="scale-motivation"></div>
       </div>
     </div>
@@ -202,20 +202,18 @@
   <div class="card">
     <div class="card-label">Habits &amp; Rituals This Week</div>
     <div id="fixed-habits-list">
-      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🧘</div><div><div class="habit-slider-name">Breathing before meals</div><div class="habit-slider-hint">0–21 meals</div></div></div><div class="habit-slider-val" id="hsv-breathing">0 / 21</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-breathing" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-breathing" min="0" max="21" value="0" oninput="updateHabitSlider('breathing',0,21)"></div><div class="habit-range-ticks"><span>0</span><span>21</span></div></div>
-      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🚶</div><div><div class="habit-slider-name">Walked after meals</div><div class="habit-slider-hint">0–21 meals</div></div></div><div class="habit-slider-val" id="hsv-walking">0 / 21</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-walking" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-walking" min="0" max="21" value="0" oninput="updateHabitSlider('walking',0,21)"></div><div class="habit-range-ticks"><span>0</span><span>21</span></div></div>
-      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🥩</div><div><div class="habit-slider-name">Protein in most meals</div></div></div><div class="yesno-wrap"><button class="yn-btn yes" id="yn-protein-yes" onclick="setYN('protein','yes')">Yes</button><button class="yn-btn no" id="yn-protein-no" onclick="setYN('protein','no')">No</button></div></div></div>
-      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">📱</div><div><div class="habit-slider-name">Screen-free 1hr before bed</div><div class="habit-slider-hint">0–7 nights</div></div></div><div class="habit-slider-val" id="hsv-screentime">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-screentime" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-screentime" min="0" max="7" value="0" oninput="updateHabitSlider('screentime',0,7)"></div><div class="habit-range-ticks"><span>0</span><span>7</span></div></div>
-      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🍵</div><div><div class="habit-slider-name">Evening tea (Sukoon/Viram)</div><div class="habit-slider-hint">0–7 nights</div></div></div><div class="habit-slider-val" id="hsv-tea">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-tea" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-tea" min="0" max="7" value="0" oninput="updateHabitSlider('tea',0,7)"></div><div class="habit-range-ticks"><span>0</span><span>7</span></div></div>
-      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🌙</div><div><div class="habit-slider-name">Night healing ritual</div><div class="habit-slider-hint">tea + magnesium+ (0–7)</div></div></div><div class="habit-slider-val" id="hsv-nightritual">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-nightritual" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-nightritual" min="0" max="7" value="0" oninput="updateHabitSlider('nightritual',0,7)"></div><div class="habit-range-ticks"><span>0</span><span>7</span></div></div>
-      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">💊</div><div><div class="habit-slider-name">Supplements consistently</div><div class="habit-slider-hint">0–7 days</div></div></div><div class="habit-slider-val" id="hsv-supplements">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-supplements" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-supplements" min="0" max="7" value="0" oninput="updateHabitSlider('supplements',0,7)"></div><div class="habit-range-ticks"><span>0</span><span>7</span></div></div>
-      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">😴</div><div><div class="habit-slider-name">Sleep quality (avg)</div><div class="habit-slider-hint">1–10</div></div></div><div class="habit-slider-val" id="hsv-sleepquality">1 / 10</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-sleepquality" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-sleepquality" min="1" max="10" value="1" oninput="updateHabitSlider('sleepquality',1,10)"></div><div class="habit-range-ticks"><span>1</span><span>10</span></div></div>
-      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">😰</div><div><div class="habit-slider-name">Stress level (avg)</div><div class="habit-slider-hint">1–10</div></div></div><div class="habit-slider-val" id="hsv-stress">1 / 10</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-stress" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-stress" min="1" max="10" value="1" oninput="updateHabitSlider('stress',1,10)"></div><div class="habit-range-ticks"><span>1</span><span>10</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🧘</div><div><div class="habit-slider-name">Breathing before meals</div><div class="habit-slider-hint">0–30 · buckets of 5</div></div></div><div class="habit-slider-val" id="hsv-breathing">0 / 30</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-breathing" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-breathing" min="0" max="30" step="5" value="0" oninput="updateHabitSlider('breathing',0,30)"></div><div class="habit-range-ticks"><span>0 · Poor</span><span>15 · OK</span><span>30 · Best</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🚶</div><div><div class="habit-slider-name">Walking After meals</div><div class="habit-slider-hint">0–30 · buckets of 5</div></div></div><div class="habit-slider-val" id="hsv-walking">0 / 30</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-walking" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-walking" min="0" max="30" step="5" value="0" oninput="updateHabitSlider('walking',0,30)"></div><div class="habit-range-ticks"><span>0 · Poor</span><span>15 · OK</span><span>30 · Best</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">☀️</div><div><div class="habit-slider-name">Sunbath</div><div class="habit-slider-hint">0–7 days</div></div></div><div class="habit-slider-val" id="hsv-sunbath">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-sunbath" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-sunbath" min="0" max="7" value="0" oninput="updateHabitSlider('sunbath',0,7)"></div><div class="habit-range-ticks"><span>0 · Poor</span><span>7 · Best</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">💊</div><div><div class="habit-slider-name">Supplements</div><div class="habit-slider-hint">0–7 days</div></div></div><div class="habit-slider-val" id="hsv-supplements">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-supplements" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-supplements" min="0" max="7" value="0" oninput="updateHabitSlider('supplements',0,7)"></div><div class="habit-range-ticks"><span>0 · Poor</span><span>7 · Best</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🏃</div><div><div class="habit-slider-name">Movement</div><div class="habit-slider-hint">0–7 days</div></div></div><div class="habit-slider-val" id="hsv-movement">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-movement" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-movement" min="0" max="7" value="0" oninput="updateHabitSlider('movement',0,7)"></div><div class="habit-range-ticks"><span>0 · Poor</span><span>7 · Best</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🍵</div><div><div class="habit-slider-name">Sukoon Tea</div><div class="habit-slider-hint">0–7 nights</div></div></div><div class="habit-slider-val" id="hsv-sukoontea">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-sukoontea" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-sukoontea" min="0" max="7" value="0" oninput="updateHabitSlider('sukoontea',0,7)"></div><div class="habit-range-ticks"><span>0 · Poor</span><span>7 · Best</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🫖</div><div><div class="habit-slider-name">Viraam Tea</div><div class="habit-slider-hint">0–7 nights</div></div></div><div class="habit-slider-val" id="hsv-viraamtea">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-viraamtea" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-viraamtea" min="0" max="7" value="0" oninput="updateHabitSlider('viraamtea',0,7)"></div><div class="habit-range-ticks"><span>0 · Poor</span><span>7 · Best</span></div></div>
+      <div class="habit-slider-row"><div class="habit-slider-top"><div class="habit-slider-left"><div class="habit-slider-icon">🌙</div><div><div class="habit-slider-name">Night healing rituals</div><div class="habit-slider-hint">Feet massage, Viraam Spray, Breathing before bed (0–7)</div></div></div><div class="habit-slider-val" id="hsv-nightritual">0 / 7</div></div><div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="hrf-nightritual" style="width:0%"></div></div><input type="range" class="habit-range-input" id="h-nightritual" min="0" max="7" value="0" oninput="updateHabitSlider('nightritual',0,7)"></div><div class="habit-range-ticks"><span>0 · Poor</span><span>7 · Best</span></div></div>
     </div>
-    <div id="custom-habits-list"></div>
-    <button type="button" class="add-item-btn" onclick="addCustomItem('habit')">+ Add a Habit</button>
     <div id="custom-rituals-list" style="margin-top:6px"></div>
-    <button type="button" class="add-item-btn" onclick="addCustomItem('ritual')">+ Add a Ritual</button>
+    <div id="custom-habits-list"></div>
+    <button type="button" class="add-item-btn" onclick="addCustomItem('ritual')">+ Add ritual</button>
   </div>
 
   <div class="two-col">
@@ -288,18 +286,18 @@
       <div style="width:34px;height:34px;border-radius:10px;background:var(--purple-light);border:1.5px solid var(--purple-mid);display:flex;align-items:center;justify-content:center;font-size:16px">📊</div>
       <div>
         <div style="font-size:13px;font-weight:700;color:var(--ink2)">Consistency — Habit → Result Impact</div>
-        <div style="font-size:10px;color:var(--ink4);margin-top:1px">Track your inner state — rate each 1–10, where <strong>1 = not good</strong> and <strong>10 = the highest</strong>. Fill what applies.</div>
+        <div style="font-size:10px;color:var(--ink4);margin-top:1px">Rate each 1–10. <strong>10 is always the best / healthiest state</strong> — even for Brain Fog, Body Pains &amp; Cravings, where 10 means none. See each label. Fill what applies.</div>
       </div>
     </div>
     <div class="form-cols-4">
-      <div class="field no-mb"><label>Sleep Quality</label><input type="number" class="meas-input" id="p-sleepq" min="1" max="10" placeholder="1–10"></div>
-      <div class="field no-mb"><label>Stress Adaptability</label><input type="number" class="meas-input" id="p-stressadapt" min="1" max="10" placeholder="1–10"></div>
-      <div class="field no-mb"><label>Activeness &amp; Energy</label><input type="number" class="meas-input" id="p-activeness" min="1" max="10" placeholder="1–10"></div>
-      <div class="field no-mb"><label>Digestion / Bloating</label><input type="number" class="meas-input" id="p-digestion" min="1" max="10" placeholder="1–10"></div>
-      <div class="field no-mb" style="margin-top:12px"><label>Brain Fog</label><input type="number" class="meas-input" id="p-brainfog" min="1" max="10" placeholder="1–10"></div>
-      <div class="field no-mb" style="margin-top:12px"><label>Body Pains / Stiffness</label><input type="number" class="meas-input" id="p-pain" min="1" max="10" placeholder="1–10"></div>
-      <div class="field no-mb" style="margin-top:12px"><label>Cravings</label><input type="number" class="meas-input" id="p-cravings" min="1" max="10" placeholder="1–10"></div>
-      <div class="field no-mb" style="margin-top:12px"><label>Movement</label><input type="number" class="meas-input" id="p-movement" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb"><label>Sleep Quality <span class="q-scale-hint">1 = poor · 10 = great</span></label><input type="number" class="meas-input" id="p-sleepq" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb"><label>Stress Adaptability <span class="q-scale-hint">1 = overwhelmed · 10 = resilient</span></label><input type="number" class="meas-input" id="p-stressadapt" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb"><label>Activeness &amp; Energy <span class="q-scale-hint">1 = drained · 10 = energised</span></label><input type="number" class="meas-input" id="p-activeness" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb"><label>Digestion / Bloating <span class="q-scale-hint">1 = very bloated · 10 = comfortable</span></label><input type="number" class="meas-input" id="p-digestion" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Brain Fog <span class="q-scale-hint">1 = very foggy · 10 = sharp &amp; clear</span></label><input type="number" class="meas-input" id="p-brainfog" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Body Pains / Stiffness <span class="q-scale-hint">1 = a lot of pain · 10 = pain-free</span></label><input type="number" class="meas-input" id="p-pain" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Cravings <span class="q-scale-hint">1 = intense · 10 = none</span></label><input type="number" class="meas-input" id="p-cravings" min="1" max="10" placeholder="1–10"></div>
+      <div class="field no-mb" style="margin-top:12px"><label>Movement <span class="q-scale-hint">1 = sedentary · 10 = very active</span></label><input type="number" class="meas-input" id="p-movement" min="1" max="10" placeholder="1–10"></div>
     </div>
   </div>
 
@@ -346,10 +344,6 @@
     <!-- WEEKLY REPORT HERO — Health Intelligence Report (image7, light) -->
     <div class="report-hero-lite">
       <div class="rhl-greet">
-        <svg class="rhl-logo" viewBox="0 0 60 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <polygon points="6,6 20,6 33,42 19,42" fill="#b8922a"/>
-          <polygon points="24,6 38,6 51,42 37,42" fill="#b8922a"/>
-        </svg>
         <div class="rhl-hello">Hey <span id="rh-name">there</span>,</div>
         <div class="rhl-sub">Your Health Intelligence Report is here</div>
         <div class="rhl-pills">
@@ -419,13 +413,18 @@
             <span class="cr-leg-item"><span class="radar-dot" style="background:var(--brand)"></span>This Week</span>
             <span class="cr-leg-item"><span class="radar-dot" style="background:var(--green)"></span>Last Week</span>
           </div>
-          <div class="radar-legend-box">
-            <div class="radar-legend-title">How to read this</div>
-            <div class="radar-legend-item"><span class="radar-dot" style="background:var(--brand)"></span>This Report</div>
-            <div class="radar-legend-item"><span class="radar-dot" style="background:var(--green)"></span>Last report comparison</div>
-            <div class="radar-legend-divider"></div>
-            <div class="radar-legend-what">A larger shape indicates better overall health and balance, while a smaller shape highlights areas that need more attention and improvement.</div>
-            <div class="radar-score-summary" id="radar-score-summary"></div>
+          <div class="radar-legend-box collapsed" id="radar-legend-box">
+            <div class="radar-legend-head" onclick="this.parentElement.classList.toggle('collapsed')" role="button" tabindex="0">
+              <span class="radar-legend-title">How to read this</span>
+              <span class="radar-legend-chevron">▸</span>
+            </div>
+            <div class="radar-legend-body">
+              <div class="radar-legend-item"><span class="radar-dot" style="background:var(--brand)"></span>This report (this week)</div>
+              <div class="radar-legend-item"><span class="radar-dot" style="background:var(--green)"></span>Last report (last week)</div>
+              <div class="radar-legend-divider"></div>
+              <div class="radar-legend-what">A larger shape indicates better overall health and balance, while a smaller shape highlights areas that need more attention and improvement.</div>
+              <div class="radar-score-summary" id="radar-score-summary"></div>
+            </div>
           </div>
         </div>
       </div>

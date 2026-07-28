@@ -57,15 +57,26 @@ function getScaleVal(id) {
   return container ? parseInt(container.dataset.selected, 10) || 0 : 0;
 }
 
-// Live update for the fancy habit sliders (fill width + value pill).
+// Live update for the fancy habit sliders (fill width + value pill + zone colour).
+// Colour by thirds of the range: low third = red (needs work), middle = amber,
+// top third = green. So a 0–30 slider is red 0–10, amber 10–20, green 20–30;
+// a 0–7 slider follows the same proportions.
+function habitZoneColor(frac) {
+  if (frac < 1 / 3) return '#C1121F';   // red
+  if (frac < 2 / 3) return '#E0A21B';   // amber
+  return '#15A34A';                     // green
+}
 function updateHabitSlider(key, min, max) {
   const input = document.getElementById('h-' + key);
   if (!input) return;
   const val = +input.value;
+  const frac = max > min ? (val - min) / (max - min) : 0;
+  const color = habitZoneColor(frac);
   const vEl = document.getElementById('hsv-' + key);
-  if (vEl) vEl.textContent = val + ' / ' + max;
+  if (vEl) { vEl.textContent = val + ' / ' + max; vEl.style.color = color; vEl.style.background = color + '1f'; }
   const fill = document.getElementById('hrf-' + key);
-  if (fill) fill.style.width = ((val - min) / (max - min)) * 100 + '%';
+  if (fill) { fill.style.width = frac * 100 + '%'; fill.style.background = color; fill.style.boxShadow = '0 0 10px ' + color + '4d'; }
+  input.style.setProperty('--thumb-color', color);
 }
 
 const ynState = {};
