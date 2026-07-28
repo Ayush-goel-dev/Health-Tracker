@@ -62,9 +62,9 @@ function getScaleVal(id) {
 // top third = green. So a 0–30 slider is red 0–10, amber 10–20, green 20–30;
 // a 0–7 slider follows the same proportions.
 function habitZoneColor(frac) {
-  if (frac < 1 / 3) return '#C1121F';   // red
-  if (frac < 2 / 3) return '#E0A21B';   // amber
-  return '#15A34A';                     // green
+  if (frac <= 1 / 3) return '#C1121F';   // red  (bottom third, e.g. 0–10 of 30)
+  if (frac <= 2 / 3) return '#E0A21B';   // amber (middle third, e.g. 10–20 of 30)
+  return '#15A34A';                      // green (top third, e.g. 20–30 of 30)
 }
 function updateHabitSlider(key, min, max) {
   const input = document.getElementById('h-' + key);
@@ -76,6 +76,20 @@ function updateHabitSlider(key, min, max) {
   if (vEl) { vEl.textContent = val + ' / ' + max; vEl.style.color = color; vEl.style.background = color + '1f'; }
   const fill = document.getElementById('hrf-' + key);
   if (fill) { fill.style.width = frac * 100 + '%'; fill.style.background = color; fill.style.boxShadow = '0 0 10px ' + color + '4d'; }
+  input.style.setProperty('--thumb-color', color);
+}
+
+// Live update for a custom ritual's slider (fill + pill + zone colour).
+function updateCustomSlider(id, max) {
+  const input = document.getElementById('custom-' + id + '-val');
+  if (!input) return;
+  const val = +input.value;
+  const frac = max > 0 ? val / max : 0;
+  const color = habitZoneColor(frac);
+  const pill = document.getElementById('custom-' + id + '-pill');
+  if (pill) { pill.textContent = val + ' / ' + max; pill.style.color = color; pill.style.background = color + '1f'; }
+  const fill = document.getElementById('custom-' + id + '-fill');
+  if (fill) { fill.style.width = frac * 100 + '%'; fill.style.background = color; }
   input.style.setProperty('--thumb-color', color);
 }
 

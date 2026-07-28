@@ -213,7 +213,11 @@
     </div>
     <div id="custom-rituals-list" style="margin-top:6px"></div>
     <div id="custom-habits-list"></div>
-    <button type="button" class="add-item-btn" onclick="addCustomItem('ritual')">+ Add ritual</button>
+    <div class="add-ritual-row">
+      <span class="add-ritual-label">+ Add ritual —</span>
+      <button type="button" class="add-item-btn" onclick="addCustomItem('ritual',7)">0–7 scale</button>
+      <button type="button" class="add-item-btn" onclick="addCustomItem('ritual',30)">0–30 scale</button>
+    </div>
   </div>
 
   <div class="two-col">

@@ -384,6 +384,11 @@ body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); 
 .habit-remove-btn:hover { background: var(--brand-light); color: var(--brand); }
 .add-item-btn { width: 100%; margin-top: 12px; padding: 11px; border-radius: var(--r-sm); border: none; background: var(--surface2); color: var(--ink3); font-size: 13px; font-weight: 600; font-family: var(--font-sans); cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .add-item-btn:hover { background: var(--brand-light); color: var(--brand); }
+.custom-slider-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.habit-slider-row.custom .habit-slider-left { flex: 1; min-width: 0; }
+.add-ritual-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.add-ritual-label { font-size: 13px; font-weight: 600; color: var(--ink3); }
+.add-ritual-row .add-item-btn { width: auto; margin-top: 0; padding: 9px 16px; }
 
 /* ── CHIPS ──────────────────────────────────────── */
 .chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; }

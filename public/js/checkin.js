@@ -83,10 +83,10 @@ function uploadMeasurementFile(event) {
 /* ═══════════════════════════════════════════
    CUSTOM HABITS / RITUALS
 ═══════════════════════════════════════════ */
-async function addCustomItem(type) {
+async function addCustomItem(type, range) {
   const defs = structuredClone(getCustomDefs());
   const id = type + '_' + Date.now();
-  defs[type].push({id, name:''});
+  defs[type].push({id, name:'', range: range === 30 ? 30 : 7});
   try {
     await saveCustomDefs(defs);
     renderCustomItems();
@@ -111,12 +111,26 @@ function renderCustomItems() {
   ['habit','ritual'].forEach(type=>{
     const wrap = document.getElementById(`custom-${type}s-list`);
     if (!wrap) return;
-    wrap.innerHTML = defs[type].map(d=>`
-      <div class="habit-row custom">
-        <input type="text" class="custom-name-input" placeholder="Name this ${type}…" value="${escAttr(d.name)}" oninput="updateCustomName('${type}','${d.id}',this.value)">
-        <input type="number" class="habit-input" min="0" max="21" placeholder="0–7" id="custom-${d.id}-val">
-        <button type="button" class="habit-remove-btn" onclick="removeCustomItem('${type}','${d.id}')" title="Remove">✕</button>
-      </div>`).join('');
+    wrap.innerHTML = defs[type].map(d=>{
+      const max = d.range === 30 ? 30 : 7;
+      const step = max === 30 ? 5 : 1;
+      const midTick = max === 30 ? '<span>15 · OK</span>' : '';
+      return `
+      <div class="habit-slider-row custom">
+        <div class="habit-slider-top">
+          <div class="habit-slider-left">
+            <div class="habit-slider-icon">✨</div>
+            <input type="text" class="custom-name-input" placeholder="Name this ${type}…" value="${escAttr(d.name)}" oninput="updateCustomName('${type}','${d.id}',this.value)">
+          </div>
+          <div class="custom-slider-right">
+            <div class="habit-slider-val" id="custom-${d.id}-pill">0 / ${max}</div>
+            <button type="button" class="habit-remove-btn" onclick="removeCustomItem('${type}','${d.id}')" title="Remove">✕</button>
+          </div>
+        </div>
+        <div class="habit-range-wrap"><div class="habit-range-track"><div class="habit-range-fill" id="custom-${d.id}-fill" style="width:0%"></div></div><input type="range" class="habit-range-input" id="custom-${d.id}-val" min="0" max="${max}" step="${step}" value="0" oninput="updateCustomSlider('${d.id}',${max})"></div>
+        <div class="habit-range-ticks"><span>0 · Poor</span>${midTick}<span>${max} · Best</span></div>
+      </div>`;
+    }).join('');
   });
 }
 let customNameSaveTimer = null;
@@ -192,18 +206,14 @@ function saveQ1() {
 
   if (!currentEntry) currentEntry = {};
   const defs = getCustomDefs();
-  const customHabits = defs.habit.filter(d=>d.name.trim()).map(d=>{
+  const readCustom = d => {
     const el = document.getElementById(`custom-${d.id}-val`);
-    const val = el ? +el.value||0 : 0;
-    const filled = !!(el && el.value !== '');
-    return {name:d.name.trim(), value:val, filled};
-  });
-  const customRituals = defs.ritual.filter(d=>d.name.trim()).map(d=>{
-    const el = document.getElementById(`custom-${d.id}-val`);
-    const val = el ? +el.value||0 : 0;
-    const filled = !!(el && el.value !== '');
-    return {name:d.name.trim(), value:val, filled};
-  });
+    const range = d.range === 30 ? 30 : 7;
+    const val = el ? +el.value || 0 : 0;
+    return {name:d.name.trim(), value:val, range, filled:true};
+  };
+  const customHabits = defs.habit.filter(d=>d.name.trim()).map(readCustom);
+  const customRituals = defs.ritual.filter(d=>d.name.trim()).map(readCustom);
   currentEntry.q1 = {
     energy:getScaleVal('scale-energy'), mood:getScaleVal('scale-mood'), motivation:getScaleVal('scale-motivation'),
     breathing:+document.getElementById('h-breathing').value||0,
@@ -300,7 +310,7 @@ async function saveQ2AndGoProgress() {
   ].filter(c => c.filled);
 
   const customPcts = filledCustoms.map(c =>
-    Math.min(100, Math.round((c.value / 7) * 100))
+    Math.min(100, Math.round((c.value / (c.range || 7)) * 100))
   );
 
   const customAvg = customPcts.length
